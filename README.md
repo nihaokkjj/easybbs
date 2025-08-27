@@ -1,7 +1,8 @@
 # easybbs论坛 (仿知乎掘金B站)
 ## 后端部署
 1. 打开easybbs文件,并打开
-2. 修改application.properties文件
+2. 修改醒目地址, 注意把'\'改成'/'
+3. 修改application.properties文件
   -  将数据库配置中的password改为自己的mysql密码
   -  spring.mail.username改为自己的qq邮箱
   -  spring.mail.password改为自己邮箱的授权码(邮箱 -> 设置 -> 账号与安全 -> 安全设置 -> POP3/IMAP/SMTP/Exchange/CardDAV 服务 -> 生成授权码)
