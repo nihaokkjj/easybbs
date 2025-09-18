@@ -1,3 +1,4 @@
+import './assets/style.css'
 import {createApp} from 'vue'
 //引入pinia
 import {createPinia} from 'pinia'
@@ -12,7 +13,6 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 //我们使用sass 所以这里将base.css 改成base.scss
 // import './assets/base.scss'
-import './assets/style.css'
 //图标 图标在附件中
 import './assets/icon/iconfont.css'
 import Dialog from './components/Dialog.vue'
@@ -23,7 +23,7 @@ import Avatar from './components/Avatar.vue'
 import Cover from './components/Cover.vue'
 import DataList from './components/DataList.vue'
 import NoData from './components/NoData.vue'
-
+import Utils from '@/utils/Utils.js'
 
 
 const app = createApp(App)
@@ -46,6 +46,7 @@ app.config.globalProperties.globalInfo = {
 app.config.globalProperties.Verify = Verify
 app.config.globalProperties.Message = Message
 app.config.globalProperties.Request = Request
+app.config.globalProperties.Utils = Utils
 
 app.component('Dialog', Dialog )
 app.component('Avatar', Avatar)

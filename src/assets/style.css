@@ -25,7 +25,13 @@ body {
   background: rgb(243, 243, 243);
 }
 
+* {
+  box-sizing: border-box;
+}
+
 #app {
+  margin: 0 auto;
+  justify-content: center;
   max-width: 1280px;
   padding: 2rem;
 }
@@ -60,5 +66,6 @@ body {
 
 .container-body {
   margin: 0px auto;
+  justify-content: center;
   margin-top: 10px;
 }

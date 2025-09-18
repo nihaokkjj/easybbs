@@ -44,7 +44,8 @@
                     </span>
                 </div>
             </div>
-            <router-link :to="`/post/${data.articleId}`" class="cover">
+            <router-link 
+            :to="`/post/${data.articleId}`" >
                 <Cover :cover="data.cover"></Cover>
             </router-link>
         </div>

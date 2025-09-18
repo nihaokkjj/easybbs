@@ -6,7 +6,7 @@ import md5 from 'js-md5'
 
 const { proxy } = getCurrentInstance();
 const api = {
-  checkCode: 'api/checkCode',
+  checkCode: '/api/checkCode',
   sendMailCode: '/sendEmailCode',
   register: '/register',
   login: '/login',
@@ -34,6 +34,7 @@ const changeCheckCode = (type)=> {
     checkCodeUrl4SendEmailCode.value = 
     api.checkCode + "?type=" + type + "&time=" + new Date().getTime()
   }
+
   }
 
   
