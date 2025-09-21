@@ -3,7 +3,9 @@ import {ref, reactive, proxyRefs, nextTick} from 'vue'
 import { getCurrentInstance } from 'vue';
 import { errorMessages } from 'vue/compiler-sfc';
 import md5 from 'js-md5'
+import { useUserStore } from '@/store';
 
+const userStore = useUserStore()
 const { proxy } = getCurrentInstance();
 const api = {
   checkCode: '/api/checkCode',
@@ -265,6 +267,11 @@ const eyeChange = (type)=>{
   passwordEyeType[type] = !passwordEyeType[type]
 }
 
+const dialogClose = () => {
+  dialogConfig.value.show = false
+  userStore.changeLoginState(false)
+}
+
 //发送邮箱验证码弹窗
 
 
@@ -278,7 +285,7 @@ const eyeChange = (type)=>{
     :buttons="dialogConfig.buttons"
     width="400px"
     :showCancel="false"
-    @close="dialogConfig.show = false"
+    @close="dialogClose"
   >
   <!-- 邮箱 -->
   <el-form 

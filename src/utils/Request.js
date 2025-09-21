@@ -53,7 +53,7 @@ instance.interceptors.response.use(
     if(responseData.code == 200) { //code状态码微200, 请求成功
       return responseData
     } else if (responseData.code == 901) { //超时
-        useUserStore.changeLoginState(true)
+        userStore.changeLoginState(true)
         userStore.updateLoginUserInfo(null)
       return Promise.reject({showError: false, msg: '登录超时'})
     }  else{ //其他错误

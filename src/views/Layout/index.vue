@@ -227,7 +227,7 @@
 		if (!result) {
 			return
 		}
-		userStore.updateLoginUserInfo(result.data?.userId)
+		userStore.updateLoginUserInfo(result.data)
 	}
 	//监听用户登录信息
 	const userInfo = ref({})
@@ -235,7 +235,7 @@
 		() => userStore.loginUserInfo,
 		(newValue, oldValue) => {
 			if (newValue !== undefined && newValue !== null) {
-				userInfo.value.userId = newValue
+				userInfo.value.userId = newValue.userId
 			} else {
 				userInfo.value = {}
 			}
@@ -244,7 +244,7 @@
 	)
 	//监听是否展示登录框
 	watch(
-		() => userStore.showLoginState,
+		() => userStore.showLogin,
 		(newValue, oldValue) => {
 			if (newValue) {
 				loginRegisterRef.value.showPanel(1) //展示登录框

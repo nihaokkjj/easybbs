@@ -4,7 +4,7 @@ import {ref, computed} from 'vue'
 //原版视频用的vuex, 这里为了练习,采用的pinia
 export const useUserStore = defineStore('user', () => {
 
-    const loginUserInfo =ref() //用户信息
+    const loginUserInfo = ref() //用户信息
     const showLogin = ref(false) //是否展示登录
 
     const boardList = ref([]) //板块信息
@@ -39,5 +39,6 @@ export const useUserStore = defineStore('user', () => {
         boardList,
         activeBoardId,
         activePboardId,
+        changeLoginState,
     }
 })

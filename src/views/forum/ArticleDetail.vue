@@ -1,8 +1,14 @@
 <script setup>
 import { getDecorators } from 'typescript';
-import { onMounted, ref, getCurrentInstance } from 'vue';
+import { onMounted, nextTick, ref, getCurrentInstance } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useUserStore } from '@/store/index';
+import hljs from "highlight.js"
+import "highlight.js/styles/atom-one-light.css"//样式
+import CommentList from './CommentList.vue';
 
+
+const userStore = useUserStore()
 const route = useRoute()
 const router = useRouter()
 const { proxy } = getCurrentInstance()
@@ -10,9 +16,12 @@ const { proxy } = getCurrentInstance()
 const api = {
   getArticleDetail: '/forum/getArticleDetail',
   doLike: "/forum/doLike",
+  getUserDownloadInfo: "/forum/getUserDownloadInfo",
+  attachmentDownload: "/api/forum/attachmentDownload",
 }
 // 文章详情
 const articleInfo = ref({})
+
 //附件
 const attachment = ref({})
 
@@ -29,6 +38,12 @@ const getArticleDetail = async (articleId) => {
   articleInfo.value = result.data.forumArticle
   attachment.value = result.data.attachment || {}
   haveLike.value = result.haveLike
+
+  userStore.activeBoardId = result.data.forumArticle.boardId
+  // 图片预览
+  imagePreview()
+  //代码高亮
+  highlightCode()
 }
 
 onMounted(() => {
@@ -36,11 +51,18 @@ onMounted(() => {
 })
 
 //快捷操作
-const quickPanelLeft = (window.innerWidth - proxy.globalInfo.bodyWidth) / 2 - 25
+const quickPanelLeft = (window.innerWidth - proxy.globalInfo.bodyWidth) / 8
 
 //是否点赞
 const haveLike = ref(false)
 const doLikeHandle = async () => {
+
+  if (!userStore.loginUserInfo) {
+    console.log('true11')
+    userStore.changeLoginState(true)
+    return
+  }
+
   let result = await proxy.Request({
     url: api.doLike,
     params: {
@@ -58,6 +80,7 @@ const doLikeHandle = async () => {
   }
 
   articleInfo.value.goodCount += goodCount
+  
 }
 
 //左侧图标跳转
@@ -65,7 +88,91 @@ const goToPosition = (domId) => {
   document.querySelector("#" + domId).scrollIntoView()
 }
 
+//下载附件
 
+const downloadDo = (fileId) => {
+    document.location.href = api.attachmentDownload + "?fileId=" + fileId
+    attachment.value.documentCount += 1
+}
+
+const downloadAttachment = async (fileId) => {
+  //当前用户信息
+  const currentUserInfo = userStore.loginUserInfo
+  if (!currentUserInfo) {//是否登录
+    userStore.changeLoginState(true)
+    return
+  }
+  console.log('are you ok')
+
+  let result = await proxy.Request({
+    url: api.getUserDownloadInfo,
+    params: {
+      fileId: fileId,
+    }
+  })
+
+  if(!result) {
+    return
+  }
+  // 之前下载过的可以不经过验证
+  if (result.data.haveDownload) {
+    downloadDo(fileId)
+    return
+  }
+  // if (currentUserInfo.userId != articleInfo.value.userId) {
+  //   proxy.Message.warning("您不能下载此文章的附件")
+  //   return
+  // }
+  if (result.data.userIntegral < attachment.value.integral) {
+    proxy.Message.warning("您的积分不够, 不够下载")
+    return
+  }
+  //0积分情况
+  if (attachment.value.integral === 0) {
+      document.location.href = api.attachmentDownload + "?fileId=" + fileId
+      attachment.value.documentCount += 1
+      return
+  }
+  proxy.Confirm(
+    `你还有${result.data.userIntegral}积分, 当前下载会扣除${attachment.value.integral}积分, 确定要下载吗?`,
+    () => {
+      downloadDo(fileId)
+    }
+)
+
+} 
+
+//图片预览
+const imageViewerRef = ref(null)
+const previewImageList = ref([])
+const imagePreview = () => {
+  nextTick(() => { 
+//等待下一次 DOM 更新循环结束后执行回调函数中的代码
+    const imageNodeList = document
+    .querySelector('#detail')
+    .querySelectorAll("img")
+
+    const imageList = []
+    imageNodeList.forEach((item, index) => {
+      const src = item.getAttribute("src")
+      imageList.push(src)
+      item.addEventListener("click", () => {
+        imageViewerRef.value.show(index)
+      })
+    })
+    previewImageList.value = imageList
+  })
+}
+
+//代码高亮
+const highlightCode = () => {
+  nextTick(() => {
+    let blocks = document.querySelectorAll("pre code")
+    blocks.forEach((item) => {
+      hljs.highlightElement(item)
+    })
+  })
+}
 </script>
 
 <template>
@@ -133,13 +240,17 @@ const goToPosition = (domId) => {
             已下载{{ attachment.downloadCount }}次
           </div>
           <div class="download-btn item">
-            <el-button type="primary">下载</el-button>
+            <el-button type="primary" @click="downloadAttachment(attachment.fileId)">下载</el-button>
             </div>
           </div>
           </div>
           <!-- 评论 -->
            <div class="comment-panel" id="view-comment">
-            pinglun
+            <CommentList 
+            v-if="articleInfo.articleId"
+            :articleId="articleInfo.articleId"
+            :articleUserId="articleInfo.articleUserId"
+            ></CommentList>
            </div>
       </div>
   </div>
@@ -155,7 +266,7 @@ const goToPosition = (domId) => {
         <div class="quick-item" @click="doLikeHandle">
           <span 
           class="iconfont icon-good"
-          :class="{haveLike: haveLike} "
+          :class="{have_like: haveLike} "
           ></span>
         </div>
       </el-badge>
@@ -173,6 +284,11 @@ const goToPosition = (domId) => {
       <div class="quick-item" @click="goToPosition('view-attachment')">
         <span class="iconfont icon-attachment"></span>
       </div>
+      <!-- 图片预览 -->
+       <ImageViewer 
+       ref="imageViewerRef"
+       :imageList="previewImageList"
+       ></ImageViewer>
 </div>
 </template>
 
@@ -267,10 +383,11 @@ const goToPosition = (domId) => {
     .comment-panel {
       margin-top: 20px;
       background: #fff;
+      padding: 20px;
     }
 }
 .quick-panel {
-      position: absolute;
+      position: fixed;
       width: 60px;
       top: 200px;
       .quick-item {
@@ -288,7 +405,7 @@ const goToPosition = (domId) => {
         font-size: 24px;
         color: var(--text2);
       }
-      .have-like {
+      .have_like {
         color: red;
       }
   }

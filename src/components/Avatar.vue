@@ -29,7 +29,7 @@ const goToUcenter = () => {
 </script>
 
 <template>
-<div
+ <div
     class="avator" 
     :style="{
         width: width + 'px',
@@ -49,14 +49,25 @@ const goToUcenter = () => {
         loading="lazy"
         @click="goToUcenter"
         >
-
     </el-image>
+    <div 
+        v-else
+        class="no-login">
+         未登录
+    </div>
 </div>
 </template>
 
 <style scoped>
     .avatar{
+        display: flex;
         outline: none;
         cursor: pointer;
-    }
+        background: #646161;
+        .no-login {
+            width: 100%;
+            font-size: 10px;
+            text-align: center;
+        }
+  }
 </style>
