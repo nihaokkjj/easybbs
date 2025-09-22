@@ -1,11 +1,12 @@
 <script setup>
-import { defineProps, ref } from 'vue';
+import CommentImage from './CommentImage.vue';
+import { defineProps, ref, computed } from 'vue';
 import CommentPost from './CommentPost.vue';
 import Avatar from '@/components/Avatar.vue';
 import { useRouter } from 'vue-router';
 import { getCurrentInstance } from 'vue';
 
-const {proxy} = getCurrentInstance()
+const { proxy } = getCurrentInstance()
 const router = useRouter()
 
 const props = defineProps({
@@ -25,9 +26,10 @@ const props = defineProps({
 
 const api = {
   doLike: "/comment/doLike",
+  changeTopType: "/comment/changeTopType",
 }
 const placeholderInfo = ref('')
-const emit = defineEmits(["hiddenAllReplay"])
+const emit = defineEmits(["hiddenAllReplay", "reloadData"])
 //发布评论
 const showReplayPanel = (curData, type) => {
   emit("hiddenAllReplay")
@@ -53,6 +55,10 @@ const replyUserId = ref(null)
 
 
 const postCommentFinish = (resultData) => {
+  //当发布第一个二级评论时, 需要将children初始化
+  if (!props.commentData.children) {
+        props.commentData.children = [];
+    }
   props.commentData.children.push(resultData[resultData.length - 1])
   props.commentData.showReplay = false
 }
@@ -76,6 +82,30 @@ const doLike = async (data) => {
     data.goodCount = result.data.goodCount
     data.likeType = result.data.likeType
 }
+
+//展示图片 
+const commentImgUrl = computed(() => {
+    if (props.commentData.imgPath) {
+      return proxy.globalInfo.imageUrl + props.commentData.imgPath.replace('.','_.')
+    }
+    return ''
+  })
+
+  //置顶
+  const onTop = async(data) => {
+    let result = await proxy.Request({
+      url: api.changeTopType,
+      params: {
+        commentId: data.commentId,
+        topType: data.topType === 1 ? 0 : 1
+      }
+    })
+    if (!result) {
+      return
+    }
+    emit('reloadData')
+  }
+
 </script>
 
 <template>
@@ -95,12 +125,24 @@ const doLike = async (data) => {
       >作者</span>
     </div>
     <div class="comment-content">
-      <span v-html="commentData.content"></span>
+      <div>
+        <span
+         class="tag tag-toping"
+         v-if="commentData.topType === 1"
+         >置顶</span>
+         <span
+          class="tag no-audit"
+          v-if="commentData.status === 0"
+          >待审核</span>
+        <span v-html="commentData.content"></span>
+      </div>
       {{ commentData.imageUrl }}
-      <commentImage
+      <CommentImage
+      :style="{'margin-top':'10px'}"
         v-if="commentData.imgPath"
-        :src="proxy.globalInfo.imageUrl + commentData.imgPath.replace(".","_.")"
-        ></commentImage>
+        :src="commentImgUrl"
+        :imgList="[proxy.globalInfo.imageUrl + commentData.imgPath]"
+        ></CommentImage>
     </div>
     <div class="op-panel">
       <div class="time">
@@ -128,7 +170,9 @@ const doLike = async (data) => {
     <div class="iconfont icon-more"></div>
     <template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item>
+        <el-dropdown-item
+         @click="onTop(commentData)"
+        >
           {{ 
             commentData.topType === 0 ? '设为置顶' : '取消置顶'
           }}
@@ -218,13 +262,14 @@ const doLike = async (data) => {
     border-bottom: 1px solid #ddd;
     padding-bottom: 8px;
     .nick-name {
+      align-items: center;
       .name {
         margin-right: 10px;
         font-size: 14px;
         color: var(--text2);
       }
       .tag-author {
-        padding: 1px;
+        padding: 2px 3px;
         background: var(--pink);
         color: #fff;
         font-size: 12px;
@@ -235,6 +280,20 @@ const doLike = async (data) => {
       margin-top: 5px;
       font-size: 15px;
       line-height: 22px;
+      .tag {
+        margin-right: 5px;
+        font-size: 13px;
+        border-radius: 3px;
+        padding: 1px 4px;
+      }
+      .tag-toping {
+        color: var(--pink);
+        border: 1px solid var(--pink);
+      }
+      .no-audit {
+        color: var(--text2);
+        border: 1px solid var(--text2);
+      }
     }
     .op-panel {
       align-items: center;

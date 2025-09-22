@@ -102,7 +102,6 @@ const downloadAttachment = async (fileId) => {
     userStore.changeLoginState(true)
     return
   }
-  console.log('are you ok')
 
   let result = await proxy.Request({
     url: api.getUserDownloadInfo,
@@ -173,6 +172,13 @@ const highlightCode = () => {
     })
   })
 }
+
+
+//更新评论数量(不统计二级评论)
+const updateCommentCount = (totalCount) => {
+  articleInfo.value.commentCount = totalCount
+}
+
 </script>
 
 <template>
@@ -249,7 +255,8 @@ const highlightCode = () => {
             <CommentList 
             v-if="articleInfo.articleId"
             :articleId="articleInfo.articleId"
-            :articleUserId="articleInfo.articleUserId"
+            :articleUserId="articleInfo.userId"
+            @updateCommentCount="updateCommentCount"
             ></CommentList>
            </div>
       </div>

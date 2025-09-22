@@ -33,12 +33,22 @@ const props = defineProps({
 const api = {
   postComment: "/comment/postComment",
 }
+
 //form信息
+
+const checkPostComment = (rule, value, callback) => {
+  if (value === null && formData.value.image === null) {
+    callback(new Error(rule.message))
+  } else {
+    callback()
+  }
+}
   const formData = ref({})
   const formDataRef = ref({})
   const rules = {
-    title: [
-      {required: true, message: "请输入评论内容"},
+    content: [
+      {required: true, message: "请输入评论内容", validator: checkPostComment},
+      {min: 5, message: "评论至少5个字"}
     ]
   }
 
@@ -62,6 +72,7 @@ const api = {
       })
       proxy.Message.success("评论发表成功")
       formDataRef.value.resetFields()
+      removeCommentImg()
       emit("postCommentFinish", result.data)
     }) 
   }

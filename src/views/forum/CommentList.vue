@@ -22,9 +22,9 @@ const api = {
   loadComment: "/comment/loadComment",
   postComment: "/comment/postComment",
   doLike: "/comment/doLike",
-  changeTopType: "/comment/changeTopType",
 }
 
+// console.log('articleUserId', articleUserId)
 //当前用户信息
 const currentUserInfo = ref({})
 currentUserInfo.value = userStore.loginUserInfo || {}
@@ -52,8 +52,12 @@ watch(
 
   }
 
-  //排序
+//排序
 const orderType = ref(0)
+const orderChange = (type) => {
+  orderType.value = type
+  loadComment()
+}
 //评论列表
 const loading = ref(null)
 const commentListInfo = ref({})
@@ -80,8 +84,12 @@ const loadComment = async() => {
 loadComment()
 
 //评论发布完成
+const emit = defineEmits(['updateCommentCount'])
 const postCommentFinish = (resultData) => {
   commentListInfo.value.list.unshift(resultData)
+  const totalCount = commentListInfo.value.totalCount + 1
+  commentListInfo.value.totalCount = totalCount
+  emit('updateCommentCount', totalCount)
 }
 
 //隐藏所有回复框
@@ -99,17 +107,24 @@ const hiddenAllReplyHandler = () => {
     <div class="comment-title">
       <div class="title">
         评论
-        <span class="count">0{{  }}</span>
+        <span class="count">{{ commentListInfo.totalCount }}</span>
       </div>
       <div class="tab">
-        <span>热榜</span>
+        <span
+         @click="orderChange(0)"
+         :class="{'a-link':orderType === 0}"
+         >热榜</span>
         <el-divider direction="vertical"></el-divider>
-        <span>最新</span>
+        <span
+         @click="orderChange(1)"
+         :class="{'a-link':orderType === 1}"
+         >最新</span>
       </div>
     </div>
     <!-- 发送评论 -->
     <div class="comment-form-pannel">
       <CommentPost 
+        :articlrUserId="articleUserId"
         :articleId="articleId"
         :avatarWidth="50"
         :userId="currentUserInfo.userId"
@@ -123,6 +138,7 @@ const hiddenAllReplyHandler = () => {
       :dataSource="commentListInfo"
       :loading="loading"
       @loadData="loadComment"
+      noDataMsg="暂无评论, 赶紧占沙发吧!"
       >
         <template #default="{data}">
           <CommentListItem 
@@ -131,6 +147,7 @@ const hiddenAllReplyHandler = () => {
           :articleUserId="articleUserId"
           :currentUserId="currentUserInfo.userId"
           @hiddenAllReply="hiddenAllReplyHandler"
+          @reloadData="loadComment"
           >
         </CommentListItem>
         </template>

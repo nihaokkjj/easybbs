@@ -5,7 +5,7 @@ const props = defineProps({
   src: {
     type: String,
   },
-  imageList: {
+  imgList: {
     type: Array,
   },
 })
@@ -17,7 +17,7 @@ const props = defineProps({
   class="comment-img"
   :src="src"
   :zoom-rate="1.2"
-  :preview-src-list="imglist ? imglist : [src]"
+  :preview-src-list="imgList ? imgList : [src]"
   :initial-index="0"
   loading="lazy"
   hide-on-click-modal
