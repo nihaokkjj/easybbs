@@ -34,7 +34,6 @@ const api = {
   postComment: "/comment/postComment",
 }
 
-//form信息
 
 const checkPostComment = (rule, value, callback) => {
   if (value === null && formData.value.image === null) {

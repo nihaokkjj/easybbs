@@ -24,20 +24,9 @@ const api = {
   doLike: "/comment/doLike",
 }
 
-// console.log('articleUserId', articleUserId)
-//当前用户信息
+
 const currentUserInfo = ref({})
 currentUserInfo.value = userStore.loginUserInfo || {}
-
-watch(
-  () => userStore.loginUserInfo,
-  (newValue, oldValue) => {
-    currentUserInfo.value = newValue || ''
-  }, 
-  {
-    immediate: true, deep: true
-  }
-  )
 
   //form信息
   const formData = ref({})
@@ -47,10 +36,6 @@ watch(
       {required: true, message: "请输入评论内容"},
     ]
   }
-  // 选择图片
-  const selectImg = () => {
-
-  }
 
 //排序
 const orderType = ref(0)
@@ -58,6 +43,7 @@ const orderChange = (type) => {
   orderType.value = type
   loadComment()
 }
+
 //评论列表
 const loading = ref(null)
 const commentListInfo = ref({})
@@ -94,9 +80,7 @@ const postCommentFinish = (resultData) => {
 
 //隐藏所有回复框
 const hiddenAllReplyHandler = () => {
-  commentListInfo.value.list.forEach( element => {
-    element.showReplay = false
-  })
+  
 }
 
 

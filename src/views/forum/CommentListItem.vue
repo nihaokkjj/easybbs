@@ -5,6 +5,7 @@ import CommentPost from './CommentPost.vue';
 import Avatar from '@/components/Avatar.vue';
 import { useRouter } from 'vue-router';
 import { getCurrentInstance } from 'vue';
+import { ArrowDown, ArrowUp } from '@element-plus/icons-vue';
 
 const { proxy } = getCurrentInstance()
 const router = useRouter()
@@ -28,11 +29,17 @@ const api = {
   doLike: "/comment/doLike",
   changeTopType: "/comment/changeTopType",
 }
+//提示信息
 const placeholderInfo = ref('')
-const emit = defineEmits(["hiddenAllReplay", "reloadData"])
+
+//是否展示二级评论
+const showMore = ref(false)
+const changeShowState = () => {
+  showMore.value = !showMore.value
+}
 //发布评论
 const showReplayPanel = (curData, type) => {
-  emit("hiddenAllReplay")
+  
   if (type === 0) {
     if(curData.showReplay === true && pCommentId.value === curData.commentId) 
         curData.showReplay = false
@@ -49,9 +56,7 @@ const showReplayPanel = (curData, type) => {
   placeholderInfo.value = "回复 @" + curData.nickName
   pCommentId.value = curData.commentId
 }
-//回复的评论的id
-const pCommentId = ref(0)
-const replyUserId = ref(null)
+
 
 
 const postCommentFinish = (resultData) => {
@@ -92,6 +97,7 @@ const commentImgUrl = computed(() => {
   })
 
   //置顶
+  const emit = defineEmits(["reloadData"])
   const onTop = async(data) => {
     let result = await proxy.Request({
       url: api.changeTopType,
@@ -180,9 +186,17 @@ const commentImgUrl = computed(() => {
       </el-dropdown-menu>
     </template>
   </el-dropdown>
+  <div v-if="commentData.children">
+    <div v-if="showMore">
+      <el-icon @click="changeShowState"><ArrowUp /></el-icon>
+    </div>
+    <div v-else>
+      <el-icon @click="changeShowState"><ArrowDown /></el-icon>
+    </div>
+  </div>
     </div>
     <div class="comment-sub-list"
-      v-if="commentData.children"  
+      v-if="commentData.children && showMore"  
     >
       <div class="comment-sub-item"
       v-for="sub in commentData.children"
