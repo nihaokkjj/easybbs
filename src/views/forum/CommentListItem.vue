@@ -1,6 +1,6 @@
 <script setup>
 import CommentImage from './CommentImage.vue';
-import { defineProps, ref, computed } from 'vue';
+import { ref, computed } from 'vue';
 import CommentPost from './CommentPost.vue';
 import Avatar from '@/components/Avatar.vue';
 import { useRouter } from 'vue-router';

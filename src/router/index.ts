@@ -4,7 +4,7 @@ import ArticleList from '../views/forum/ArticleList.vue'
 import Search from '../views/Search/index.vue'
 import Ucenter from '@/views/ucenter/ucenter.vue'
 import ArticleDetail from '@/views/forum/ArticleDetail.vue'
-
+import EditPost from '@/views/forum/EditPost.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,6 +33,16 @@ const router = createRouter({
           path: '/post/:articleId',
           name: '文章详情',
           component: ArticleDetail,
+        },
+        {
+          path: '/newPost',
+          name: '发布文章',
+          component: EditPost,
+        },
+        {
+          path: '/editPost/:articleId',
+          name: '编辑文章',
+          component: EditPost,
         },
         {
           path: '/user/:userId',

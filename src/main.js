@@ -26,8 +26,10 @@ import NoData from './components/NoData.vue'
 import Utils from '@/utils/Utils.js'
 import Confirm from '@/utils/Confirm.js'
 import ImageViewer from './components/ImageViewer.vue'
-
-
+import EditorHtml from './components/EditorHtml.vue'
+import EditorMarkdown from './components/EditorMarkdown.vue'
+import AttachmentSelector from './components/AttachmentSelector.vue'
+import CoverUpload from './components/CoverUpload.vue'
 
 const app = createApp(App)
 
@@ -59,5 +61,10 @@ app.component('Cover', Cover)
 app.component('DataList', DataList)
 app.component('NoData', NoData)
 app.component('ImageViewer', ImageViewer)
+app.component('EditorMarkdown', EditorMarkdown)
+app.component('EditorHtml', EditorHtml)
+app.component('AttachmentSelector', AttachmentSelector)
+app.component('CoverUpload', CoverUpload)
+
 
 app.mount('#app')

@@ -1,6 +1,6 @@
 <script setup>
 import CommentImage from './CommentImage.vue';
-import { defineProps, ref } from 'vue';
+import { ref } from 'vue';
 import { getCurrentInstance } from 'vue';
 
 const {proxy} = getCurrentInstance()

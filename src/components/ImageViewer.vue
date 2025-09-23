@@ -41,7 +41,7 @@ defineExpose({show})
      @close="closeImgViewer"
      v-if="previewImageIndex != null"
      >
-
+    
     </el-image-viewer>
   </div>
 </template>

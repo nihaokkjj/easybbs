@@ -52,7 +52,9 @@
 			</div>
 			<!-- 登录注册用户信息 -->
 			<div class="user-info-pannel">
-				<el-button type="primary" class="op-btn">
+				<el-button type="primary" class="op-btn"
+				@click="newPost"
+				>
 					发帖 <span class="iconfont icon-add"></span>
 				</el-button>
 				<el-button type="primary" class="op-btn" @click="goSearch">
@@ -279,6 +281,14 @@
 		router.push(`/forum/${subBoard.pBoardId}/${subBoard.boardId}`)
 	}
 
+//发帖
+const newPost = () => {
+	if (!userStore.loginUserInfo) {
+		userStore.showLogin = true
+	} else {
+		router.push("/newPost")
+	}
+}
 
 </script>
 
