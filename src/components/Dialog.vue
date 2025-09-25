@@ -67,7 +67,7 @@ const close = () => {
 
 <style scoped lang="scss">
 .cust-dialog {
-  margin: 0px auto !important;
+  margin: 0px auto;
   width: 200px;
   .el-dialog__body {
     padding: 0px;

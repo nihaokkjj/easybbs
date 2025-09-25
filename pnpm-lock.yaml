@@ -38,6 +38,9 @@ importers:
       '@tiptap/extension-text':
         specifier: ^3.4.5
         version: 3.4.5(@tiptap/core@3.4.6(@tiptap/pm@3.4.5))
+      '@tiptap/extension-text-style':
+        specifier: ^3.5.0
+        version: 3.5.0(@tiptap/core@3.4.6(@tiptap/pm@3.4.5))
       '@tiptap/pm':
         specifier: ^3.4.5
         version: 3.4.5
@@ -663,6 +666,11 @@ packages:
     resolution: {integrity: sha512-gXbmzAl2+KgrAsxSIRrjKNOJxL9rKYZyDXzgGlNrFvTPNGy7arhmpVFbrw4xNFULz8nxnHN0iWH8tNHrIZfKmg==}
     peerDependencies:
       '@tiptap/core': ^3.4.5
+
+  '@tiptap/extension-text-style@3.5.0':
+    resolution: {integrity: sha512-AZ9F2rYnHBdAwQVhXSH8GO0btKY32ieY53BoWq31HjTWhNycmv7eQ6sSP2TwHkSKqeXYP7W5BxcVvFE31ctHQg==}
+    peerDependencies:
+      '@tiptap/core': ^3.5.0
 
   '@tiptap/extension-text@3.4.5':
     resolution: {integrity: sha512-e6VDEIeeMNRxsqPSnL8v7U+lpb42OgPvZ8BhUe4+Bq+y1PTAQOQw2j/lbYHsX2mBHYGCcda2bjhvFRXoO89rtA==}
@@ -2932,6 +2940,10 @@ snapshots:
       '@tiptap/extensions': 3.4.5(@tiptap/core@3.4.6(@tiptap/pm@3.4.5))(@tiptap/pm@3.4.5)
 
   '@tiptap/extension-strike@3.4.5(@tiptap/core@3.4.6(@tiptap/pm@3.4.5))':
+    dependencies:
+      '@tiptap/core': 3.4.6(@tiptap/pm@3.4.5)
+
+  '@tiptap/extension-text-style@3.5.0(@tiptap/core@3.4.6(@tiptap/pm@3.4.5))':
     dependencies:
       '@tiptap/core': 3.4.6(@tiptap/pm@3.4.5)
 

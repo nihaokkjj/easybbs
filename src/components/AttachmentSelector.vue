@@ -64,7 +64,7 @@ const delFile = () => {
   .file-name {
     white-space: nowrap;
     overflow: hidden;
-    color: #4c93a7;
+    color: rgb(93, 116, 122);
     flex: 1;
   }
 }

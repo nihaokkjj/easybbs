@@ -64,7 +64,7 @@
 					<div class="message-info">
 						<el-dropdown>
 							<el-badge :value="12" class="item">
-								<div class="iconfont icon-message"></div>
+								<div class="iconfont icon-message aria-expanded=false"></div>
 							</el-badge>
 							<template #dropdown>
 								<el-dropdown-menu>
@@ -352,12 +352,9 @@ const newPost = () => {
 					margin-left: 10px;
 					margin-right: 15px;
 					.icon-message {
-						font-size: 25px;
-						color: rgb(138, 130, 130);
+						font-size: 22px;
+						color: rgb(138, 130, 130);		
 					}
-				}
-				.message-info:hover {
-					outline: none;
 				}
 
 				.login {

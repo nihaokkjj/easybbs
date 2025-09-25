@@ -48,7 +48,7 @@ const uploadImage = async(file) => {
           + modelValue.imageUrl"
          v-if="modelValue && modelValue.imageUrl"
           >
-        <span class="iconfont icon-add"></span>
+        <span v-else class="iconfont icon-add"></span>
       </template>
     </div>
   </el-upload>

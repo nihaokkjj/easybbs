@@ -272,9 +272,6 @@ const dialogClose = () => {
   userStore.changeLoginState(false)
 }
 
-//发送邮箱验证码弹窗
-
-
 </script>
 
 <template>
@@ -283,7 +280,8 @@ const dialogClose = () => {
     :show="dialogConfig.show"
     :title="dialogConfig.title"
     :buttons="dialogConfig.buttons"
-    width="400px"
+     width="400px"
+     :top="'calc(50% - 150px)'"
     :showCancel="false"
     @close="dialogClose"
   >
