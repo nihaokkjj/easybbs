@@ -1,10 +1,12 @@
 s<script setup>
 import {ref, reactive, proxyRefs, nextTick} from 'vue'
 import { getCurrentInstance } from 'vue';
+import { useRouter } from 'vue-router';
 import { errorMessages } from 'vue/compiler-sfc';
 import md5 from 'js-md5'
 import { useUserStore } from '@/store';
 
+const router = useRouter()
 const userStore = useUserStore()
 const { proxy } = getCurrentInstance();
 const api = {
@@ -248,6 +250,8 @@ const doSubmit = () => {
       }
       dialogConfig.value.show = false
       proxy.Message.success("登录成功")
+      // debugger
+      router.go(0)
     } else if (onType.value == 2) {
       proxy.Message.success("重置密码成功, 请登录")
       //重置密码
@@ -272,6 +276,7 @@ const dialogClose = () => {
   userStore.changeLoginState(false)
 }
 
+const diaTop = window.innerHeight - 600 + 'px'
 </script>
 
 <template>
@@ -281,7 +286,7 @@ const dialogClose = () => {
     :title="dialogConfig.title"
     :buttons="dialogConfig.buttons"
      width="400px"
-     :top="'calc(50% - 150px)'"
+     :top="diaTop"
     :showCancel="false"
     @close="dialogClose"
   >

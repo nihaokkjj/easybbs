@@ -4,6 +4,7 @@ import EditorHtml from '@/components/EditorHtml.vue';
 import { useRoute, useRouter } from 'vue-router';
 import {ref, getCurrentInstance, watch, nextTick} from 'vue'
 import CoverUpload from '@/components/CoverUpload.vue';
+import { ElMessageBox } from 'element-plus';
 import AttachmentSelector from '@/components/AttachmentSelector.vue';
 import message from '@/utils/Message';
 
@@ -51,7 +52,7 @@ const postHandler = () =>{
     }
     let params = {}
     Object.assign(params, formData.value)
-    console.log('params', params)
+
     if (params.boardIds.length === 1) {
       params.pBoardId = params.boardIds[0]
     } else if (params.boardIds.length === 2) {
@@ -64,14 +65,15 @@ const postHandler = () =>{
     //获取内容
     params.editorType = editorType.value
 
-      // 如果是富markdown编辑器, 则另外处理
+      // 如果是markdown编辑器, 则另外处理
       let submitContent = params.content
       if (params.editorType === 0) { // Markdown 编辑器
         submitContent = params.markdownContent
-        params.content = submitContent 
       } else { // 富文本编辑器
-        params.markdownContent = "" // 确保只提交一个
+        params.markdownContent = '0'
+        submitContent = formData.value.content
       }
+      params.content = formData.value.content
 
       // 内容非空校验
       const contentText = submitContent.replace(/<(?!img).*?>/g, "")
@@ -81,7 +83,7 @@ const postHandler = () =>{
       }
 
     //封面
-    if(!params.cover instanceof File) {
+    if(params.cover && !(params.cover instanceof File)) {
       delete params.cover
     }
     if (params.attachment !== null) {
@@ -99,10 +101,11 @@ const postHandler = () =>{
       url: params.articleId?api.updateArticle : api.postArticle,
       params: params,
     })
+    // console.log('result', result)
     if (!result) {
       return
     }
-    proxy.Message.success("保存成功")
+    proxy.Message.success("发布成功")
     router.push(`/post/${result.data}`)
   })
 }
@@ -148,7 +151,7 @@ const getArticleDetail = () => {
   nextTick(async () => {
     formDataRef.value.resetFields()
     if(articleId.value) {
-      console.log('article',articleId.value)
+      // console.log('article',articleId.value)
       let result = await proxy.Request({
         url: api.articleDetail4Update,
         params: {
@@ -194,6 +197,7 @@ const getArticleDetail = () => {
       }
 
       formData.value = articleInfo
+      // console.log('form', formData.value)
     } else {
       formData.value = {}
       editorType.value = proxy.VueCookies.get("editorType") || 0
@@ -203,7 +207,11 @@ const getArticleDetail = () => {
 
 const articleId =ref(null)
 
-const setHtmlContent = (HTMLcontent) => {
+const setHtmlContentH = (HTMLcontent) => {
+  formData.value.content = HTMLcontent
+}
+
+const setHtmlContentMark = (HTMLcontent) => {
   formData.value.content = HTMLcontent
 }
 watch(
@@ -251,10 +259,11 @@ watch(
        :height="markdownHeight"
        v-if="editorType === 0"
        v-model="formData.markdownContent"
+       @htmlContent="setHtmlContentMark"
        ></EditorMarkdown>
         <EditorHtml
         v-if="editorType === 1"
-        @htmlContent="setHtmlContent"
+        @htmlContent="setHtmlContentH"
         ></EditorHtml>
       </div>
       

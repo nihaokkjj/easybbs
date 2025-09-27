@@ -1,5 +1,5 @@
 <script setup>
-import {  ref, getCurrentInstance } from 'vue';
+import {  ref, getCurrentInstance, onMounted } from 'vue';
 import VMdEditor from '@kangc/v-md-editor';
 import '@kangc/v-md-editor/lib/style/base-editor.css';
 import githubTheme from '@kangc/v-md-editor/lib/theme/github.js';
@@ -23,7 +23,6 @@ const props = defineProps({
 VMdEditor.use(githubTheme, {
   Hljs: hljs,
 });
-const modelValue = ref()
 
 const emit = defineEmits(["update:modelValue", "htmlContent"])
 const change = (markdownContent, htmlContent) => {
@@ -42,12 +41,13 @@ const uploadImageHandler = async (event, insertImage, files) => {
     return
   }
   const url = proxy.globalInfo.imageUrl + result.data.fileName
-  console.log(url)
+
   insertImage({
     url: url,
     desc: "图片",
   })
 }
+
 
 </script>
 

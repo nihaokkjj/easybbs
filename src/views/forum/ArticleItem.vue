@@ -28,7 +28,7 @@
                    </template> 
                 </div>
                 <router-link :to="`/post/${data.articleId}`" class="title-info">
-                    <span v-if="data.topType == 0" class="top">置顶</span>
+                    <span v-if="data.topType === 1" class="top">置顶</span>
                     <span class="title">{{ data.title }}</span>
                 </router-link>
                 <div class="summary">{{ data.summary }}</div>

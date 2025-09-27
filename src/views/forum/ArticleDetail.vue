@@ -1,6 +1,12 @@
 <script setup>
-import { getDecorators } from 'typescript';
-import { onMounted, nextTick, ref, getCurrentInstance } from 'vue';
+import { addSyntheticLeadingComment, getDecorators } from 'typescript';
+import {
+  onMounted,
+  nextTick,
+  ref,
+  getCurrentInstance,
+  onUnmounted,
+  watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from '@/store/index';
 import hljs from "highlight.js"
@@ -40,10 +46,13 @@ const getArticleDetail = async (articleId) => {
   haveLike.value = result.haveLike
 
   userStore.activeBoardId = result.data.forumArticle.boardId
+  userStore.activePboardId = result.data.forumArticle.pBoardId
   // 图片预览
   imagePreview()
   //代码高亮
   highlightCode()
+  //生成目录
+  makeToc()
 }
 
 onMounted(() => {
@@ -51,7 +60,7 @@ onMounted(() => {
 })
 
 //快捷操作
-const quickPanelLeft = (window.innerWidth - proxy.globalInfo.bodyWidth) / 8
+const quickPanelLeft = (window.innerWidth - proxy.globalInfo.bodyWidth) / 2 - 80
 
 //是否点赞
 const haveLike = ref(false)
@@ -95,10 +104,10 @@ const downloadDo = (fileId) => {
     attachment.value.documentCount += 1
 }
 
+const currentUserInfo = ref(null)
 const downloadAttachment = async (fileId) => {
   //当前用户信息
-  const currentUserInfo = userStore.loginUserInfo
-  if (!currentUserInfo) {//是否登录
+  if (!currentUserInfo.value) {//是否登录
     userStore.changeLoginState(true)
     return
   }
@@ -179,6 +188,93 @@ const updateCommentCount = (totalCount) => {
   articleInfo.value.commentCount = totalCount
 }
 
+//更新目录列表 
+
+const tocArray = ref([])
+const makeToc = () => {
+  nextTick(() => {
+    const tocTags = ["H1", "H2", "H3", "H4", "H5", "H6"]
+
+    //获取所有标签
+    const contentDom = document.querySelector('#detail')
+    const childNodes = contentDom.childNodes
+    let index = 0
+    childNodes.forEach((item) => {
+      let tagName = item.tagName
+      // console.log(tagName)
+      if (tagName === undefined || !tocTags.includes(tagName.toUpperCase())) {
+        return true
+      } 
+      index++
+      let id = "toc" + index
+      item.setAttribute("id", id)
+      tocArray.value.push({
+        id: id,
+        title: item.innerText,
+        level: Number.parseInt(tagName.substring(1)),
+        offsetTop: item.offsetTop,
+      })
+    })
+  })
+}
+
+//跳转到相应的锚点
+const activeChorId = ref(null)
+const gotoAnchor = (domId) => {
+  activeChorId.value = domId
+  const dom = document.querySelector('#'+domId)
+  dom.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  })
+}
+
+//把目录的活跃样式与当前滚动条的位置同步
+const listenerScroll = () => {
+  let currentScrollTop = getScrollTop()
+  //.some() 方法会遍历数组中的每一个元素，并对每个元素执行传入的回调函数
+  //不会修改原数组
+  tocArray.value.some((item, index) => {
+    if (index < tocArray.value.length - 1 &&
+      currentScrollTop >= tocArray.value[index].offsetTop &&
+      currentScrollTop < tocArray.value[index + 1].offsetTop ||
+      index == tocArray.value.length - 1 && 
+      currentScrollTop < tocArray.value[index].offsetTop
+    ) {
+      activeChorId.value = item.id
+      return true
+    }
+  })
+}
+
+//获取滚动条的位置
+const getScrollTop = () => {
+  let scrollTop =
+    document.documentElement.scrollTop ||
+    window.pageYOffset ||
+    document.body.scrollTop
+  return scrollTop
+}
+
+watch(
+  () => userStore.loginUserInfo,
+  (newV, oldV) => {
+    currentUserInfo.value = newV || ''
+  },
+  {immediate: true, deep: true}
+)
+
+onMounted(() => {
+  window.addEventListener("scroll", listenerScroll, false)
+})
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", listenerScroll, false)
+})
+
+const use = () => {
+  
+}
 </script>
 
 <template>
@@ -186,6 +282,7 @@ const updateCommentCount = (totalCount) => {
   class="container-body article-detail-body"
   v-if="Object.keys(articleInfo).length > 0"
   :style="{width: proxy.globalInfo.bodyWidth + 'px'}">
+  <!-- 板块导航 -->
     <div class="board-info">
       <router-link 
       :to="`/forum/${articleInfo.pBoardId}`"
@@ -199,11 +296,15 @@ const updateCommentCount = (totalCount) => {
       <span class="iconfont icon-right"></span>
       <span>{{ articleInfo.title }}</span>
     </div>
+    <!-- 详情 -->
     <div class="detail-container"
     :style="{width: proxy.globalInfo.bodyWidth - 300 + 'px'}">
       <div class="article-detail">
         <!-- 标题 -->
-        <div class="title">{{ articleInfo.title }}</div>
+        <div class="title"
+        >{{ articleInfo.title }}
+        <el-tag v-if="articleInfo.status === 0">待审核</el-tag>
+      </div>
         <!-- 用户信息 -->
         <div class="user-info">
           <Avatar :userId = "articleInfo.userId":width="50">
@@ -219,6 +320,11 @@ const updateCommentCount = (totalCount) => {
               <span class="iconfont icon-eye-solid">
                 {{ articleInfo.readCount === 0 ? '阅读' : articleInfo.readCount }}
               </span>
+              <router-link
+              v-if="articleInfo.userId === currentUserInfo?.userId"
+               :to="`/editPost/${articleInfo.articleId}`">
+                <span class="iconfont icon-edit a-link">编辑</span>
+              </router-link>
             </div>
           </div>
         </div>
@@ -260,7 +366,30 @@ const updateCommentCount = (totalCount) => {
             ></CommentList>
            </div>
       </div>
-  </div>
+        <!-- 目录 -->
+      <div class="toc-panel">
+        <div class="toc-container">
+          <div class="toc-title">目录</div>
+          <div class="hiddenMouse">
+            <div class="toc-list">
+              <template v-if="tocArray.length === 0">
+                <div class="no-toc">未解析到目录</div>
+              </template>
+              <template v-else>
+                  <div v-for="toc in tocArray">
+                  <span
+                   class="toc-item"
+                   :class="{'active': toc.id === activeChorId}"
+                   :style="{'padding-left': toc.level * 10 + 'px'}"
+                   @click="gotoAnchor(toc.id)"
+                   >{{ toc.title }}</span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 <!-- 左侧快捷操作 -->
   <div class="quick-panel"
      :style="{left: quickPanelLeft + 'px'}">
@@ -301,10 +430,12 @@ const updateCommentCount = (totalCount) => {
 
 <style scoped>
 .article-detail-body {
+  position: relative;
+  margin-top: 40px;
   padding-top: 23px;
   padding-bottom: 25px;
   .board-info {
-    padding: 2px 150px;
+    padding: 2px 6px;
     line-height: 30px;
     .iconfont {
       font-weight: bolder;
@@ -312,7 +443,6 @@ const updateCommentCount = (totalCount) => {
     }
   }
   .detail-container {
-    margin: 0 auto;
     .article-detail {
       padding: 5px 1px 5px 15px;
       background: #fff;
@@ -340,6 +470,7 @@ const updateCommentCount = (totalCount) => {
             font-size: 13px;
             color: var(--text2);
             .iconfont {
+              font-size: 12px;
               margin-left: 10px;
             }
             .iconfont::before{
@@ -415,5 +546,65 @@ const updateCommentCount = (totalCount) => {
       .have_like {
         color: red;
       }
+  }
+
+  .toc-panel {
+    position: absolute;
+    top: 60px;
+    right: 0px;
+    width: 285px;
+    .toc-container {
+      position: fixed;
+      margin: 5px 5px;
+      width: 285px;
+      background-color: #fff;
+      .toc-title {
+        border-bottom: 1px solid #ddd;
+        padding: 10px;
+      }
+      .hiddenMouse {
+          max-height: calc(100% - 30px);
+          overflow: hidden;
+          width: 285px;
+          .toc-list {
+            width: 303px;
+            padding: 8px 0px 5px 10px;
+            max-height: 500px;
+            overflow: auto;
+            .no-toc {
+              text-align: center;
+              color: #757474;
+              line-height: 13px;
+              font-size: 13px;
+            }
+            .toc-item {
+              margin: 3px 0;
+              cursor: pointer;
+              display: block;
+              line-height: 35px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              color: #8d8c8c;
+              font-size: 14px;
+              border-radius: 3px;
+              border-left: 2px solid #fff;
+            }
+            .toc-item:hover {
+              color: #3f3f3f;
+              border-radius: 0px;
+              font-size: 15px;
+              background-color: #f0eeee;
+              border-left: 2px solid #8fc7d3;
+            }
+            .active {
+              color: #3f3f3f;
+              border-radius: 0px;
+              font-size: 15px;
+              background-color: #f0eeee;
+              border-left: 2px solid #8fc7d3;
+            }
+         }
+      }
+    }
   }
 </style>

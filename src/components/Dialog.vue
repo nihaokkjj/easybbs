@@ -77,7 +77,7 @@ const close = () => {
     border-bottom: 1px solid #ddd;
     padding: 15px;
     min-height: 100px;
-    max-height: 900px;
+    max-height: calc(100vh - 300px);
     overflow: auto;
   }
   .dialog-footer {

@@ -129,7 +129,7 @@ watch(
 
 <style scoped>
 .article-list-body {
-    padding-top: 25px;
+    padding-top: 55px;
     .sub-board {
         margin-bottom: 8px;
         .board-item {

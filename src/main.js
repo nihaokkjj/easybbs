@@ -45,7 +45,6 @@ app.config.globalProperties.globalInfo = {
   bodyWidth: 1300,
   avatarUrl: "/api/file/getAvatar/",
   imageUrl: "/api/file/getImage/",
-
 }
 
 app.config.globalProperties.Verify = Verify
