@@ -2,7 +2,7 @@
 import EditorMarkdown from '@/components/EditorMarkdown.vue';
 import EditorHtml from '@/components/EditorHtml.vue';
 import { useRoute, useRouter } from 'vue-router';
-import {ref, getCurrentInstance, watch, nextTick} from 'vue'
+import {onMounted, ref, getCurrentInstance, watch, nextTick} from 'vue'
 import CoverUpload from '@/components/CoverUpload.vue';
 import { ElMessageBox } from 'element-plus';
 import AttachmentSelector from '@/components/AttachmentSelector.vue';
@@ -128,9 +128,11 @@ const loadBoardList = async () => {
   boardList.value = result.data
 }
 
-loadBoardList()
+onMounted(()=>{
+  loadBoardList()
+})
 
-//0是富文本, 1是富文本编辑器
+//0是markdown, 1是富文本编辑器
 
 const editorType = ref(0)
 
@@ -150,8 +152,8 @@ const getArticleDetail = () => {
   //等待dom渲染完毕
   nextTick(async () => {
     formDataRef.value.resetFields()
+
     if(articleId.value) {
-      // console.log('article',articleId.value)
       let result = await proxy.Request({
         url: api.articleDetail4Update,
         params: {
@@ -167,7 +169,8 @@ const getArticleDetail = () => {
           })
         }
       })
-      // console.log('result', result)
+
+      console.log('result', result)
       if (!result) {
         return
       }
@@ -220,8 +223,7 @@ watch(
     if (
       newValue.path.indexOf("/editPost") != -1||
       newValue.path.indexOf("/newPost") != -1
-    )
-     {
+    ) {
       articleId.value = newValue.params.articleId
       getArticleDetail()
     }

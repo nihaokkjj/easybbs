@@ -1,9 +1,20 @@
 <script setup>
-    const props = defineProps({
-        data: {
-            type: Object,
-        }
-    })
+import { useUserStore } from '@/store';
+import { ref } from 'vue';
+
+const userStore = useUserStore()
+
+const props = defineProps({
+    data: {
+        type: Object,
+    },
+    showEdit: {
+        type: Boolean,
+        default: false,
+    }
+})
+
+const currentUserInfo = userStore.loginUserInfo || {}
 </script>
 
 <template>
@@ -29,6 +40,7 @@
                 </div>
                 <router-link :to="`/post/${data.articleId}`" class="title-info">
                     <span v-if="data.topType === 1" class="top">置顶</span>
+                    <span v-if="data.status === 0" class="tag tag-no-edit">待审核</span>
                     <span class="title">{{ data.title }}</span>
                 </router-link>
                 <div class="summary">{{ data.summary }}</div>
@@ -42,6 +54,11 @@
                     <span class="iconfont icon-comment">
                         {{ data.commentCount === 0 ? "评论" : data.commentCount }}
                     </span>
+                    <router-link
+                      v-if="showEdit"
+                      :to="`/editPost/${data.articleId}`">
+                        <span class="iconfont icon-edit a-link">编辑</span>
+                    </router-link>
                 </div>
             </div>
             <router-link 
@@ -101,6 +118,13 @@
                     padding: 1px 5px;
                     margin-right: 3px;
                 }
+                .tag {
+                    border-radius: 2px;
+                    padding: 1px;
+                    border: 1px solid #757373;
+                    color: #757373;
+                    font-size: 12px;
+                }
                 .title {
                     font-weight: bold;
                     font-size: 16px;
@@ -123,6 +147,9 @@
                 }
                 .iconfont::before {
                     margin-right: 5px;
+                }
+                .icon-edit {
+                    font-size: 13px;
                 }
             }
         }

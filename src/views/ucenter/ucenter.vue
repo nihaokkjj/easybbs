@@ -17,13 +17,14 @@ const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
 const api = {
-  getUserInfo: 'ucenter/getUserInfo',
+  getUserInfo: '/ucenter/getUserInfo',
   loadUserArticle: "/ucenter/loadUserArticle",
 }
 
 
 const userId = ref(null)
 const userInfo =ref({})
+const currentId = ref(userStore.loginUserInfo?.userId || '')
 
 const loadUserInfo = async() => {
   let result = await proxy.Request({
@@ -42,20 +43,22 @@ const loadUserInfo = async() => {
     return
   }
   userInfo.value = result.data
+
   resetCurrentUser()
   loadArticle()
 }
 
 const resetCurrentUser = () => {
-  if (userInfo.value !== undefined && userInfo.value.userId === userId.value) {
+  if (currentId.value !== undefined && currentId.value === userId.value) {
         isCurrentUser.value = true
     } else isCurrentUser.value = false
-}
+  }
 
 //是否为作者查看
 const isCurrentUser =ref(false)
 watch(() => userStore.loginUserInfo,
     (newValue, oldValue) => {
+      if (newValue) currentId.value = newValue.userId
       resetCurrentUser()
     },
     {immediate: true, deep:true}
@@ -216,7 +219,11 @@ const resetUserInfoHandler = (data) => {
            noDataMsg="暂无相关内容"
            >
            <template #default="{data}">
-              <ArticleItem :data="data" @loadData="loadArticle"></ArticleItem>
+              <ArticleItem
+               :data="data"
+                @loadData="loadArticle"
+                :showEdit="activeTagName === 0 && isCurrentUser"
+                ></ArticleItem>
           </template>
           </DataList>
         </div>

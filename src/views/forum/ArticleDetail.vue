@@ -12,12 +12,13 @@ import { useUserStore } from '@/store/index';
 import hljs from "highlight.js"
 import "highlight.js/styles/atom-one-light.css"//样式
 import CommentList from './CommentList.vue';
-
+import { sysStore } from '@/store/SysSetting';
 
 const userStore = useUserStore()
 const route = useRoute()
 const router = useRouter()
 const { proxy } = getCurrentInstance()
+const store = sysStore()
 
 const api = {
   getArticleDetail: '/forum/getArticleDetail',
@@ -94,7 +95,7 @@ const doLikeHandle = async () => {
 
 //左侧图标跳转
 const goToPosition = (domId) => {
-  document.querySelector("#" + domId).scrollIntoView()
+  document.querySelector("#" + domId)?.scrollIntoView()
 }
 
 //下载附件
@@ -272,9 +273,16 @@ onUnmounted(() => {
   window.removeEventListener("scroll", listenerScroll, false)
 })
 
-const use = () => {
-  
-}
+//监听后台数据, 是否展示评论
+// const showComment = ref(true)
+// watch(
+//   ()=> store.SysSetting,
+//   (newValue, oldValue) => {
+//     if (newValue) {
+//       showComment.value = newValue.commentOpen
+//     }
+//   }
+// )
 </script>
 
 <template>
@@ -357,7 +365,10 @@ const use = () => {
           </div>
           </div>
           <!-- 评论 -->
-           <div class="comment-panel" id="view-comment">
+           <div
+            class="comment-panel"
+            id="view-comment"
+            >
             <CommentList 
             v-if="articleInfo.articleId"
             :articleId="articleInfo.articleId"
@@ -411,7 +422,8 @@ const use = () => {
       :value="articleInfo.commentCount"
       type="info"
       :offset="[-12,22]"
-      :hidden="articleInfo.commentCount <= 0">
+      :hidden="articleInfo.commentCount <= 0"
+      >
         <div class="quick-item" @click="goToPosition('view-comment')">
           <span class="iconfont icon-comment"></span>
         </div>

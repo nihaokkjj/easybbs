@@ -186,9 +186,14 @@
 	<div class="body-content">
 		<router-view></router-view>
 	</div>
+
+		<FooterContent></FooterContent>
+	<SysSetting></SysSetting>
 </template>
 
 <script setup>
+	import SysSetting from './components/SysSetting.vue'
+	import FooterContent from './components/FooterContent.vue' 
 	import LoginAndRegister from './components/LoginAndRegister.vue'
 	import {
 		ref,
@@ -533,6 +538,7 @@
 	.body-content {
 		margin-top: 10px;
 		position: relative;
+		min-height: calc(100vh - 165px);
 	}
 
 	.message-item {

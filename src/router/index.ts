@@ -1,11 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Layout from '../views/Layout/index.vue'
 import ArticleList from '../views/forum/ArticleList.vue'
-import Search from '../views/Search/index.vue'
+import Search from '../views/Search/Search.vue'
 import Ucenter from '@/views/ucenter/Ucenter.vue'
 import ArticleDetail from '@/views/forum/ArticleDetail.vue'
 import EditPost from '@/views/forum/EditPost.vue'
 import MessageList from '@/views/ucenter/MessageList.vue'
+import { useUserStore } from '@/store'
 
 
 const router = createRouter({
@@ -59,10 +60,24 @@ const router = createRouter({
         {
           path: '/search',
           component: Search,
-        }
-    ]
-    }
+        }]
+    }, 
+    {
+      path: '/:pathMatch(.*)*',
+      name: '404',
+      component: ()=> import("@/views/ucenter/Error404.vue")
+    },
   ]
+},
+)
+
+//进去 '/user'中心后取消板块的选中
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore()
+  if (to.path.indexOf("/user") != -1) {
+    userStore.activePboardId = -1
+  }
+  next()
 })
 
 export default router

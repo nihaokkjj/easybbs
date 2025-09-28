@@ -41,6 +41,7 @@ const handlePageNoChange = (pageNo) => {
       background
       :total="dataSource.totalCount"
       :current-page.sync="dataSource.pageNo"
+      :page-size="15"
       layout="prev, pager, next"
       @current-change="handlePageNoChange"
       style="text-align: right"

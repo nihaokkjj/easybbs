@@ -3,9 +3,10 @@ import { getCurrentInstance,ref, onMounted, watch } from 'vue';
 import ArticleItem from './ArticleItem.vue';
 import { useRoute} from 'vue-router';
 import { useUserStore } from '@/store';
-
+import { sysStore } from '@/store/SysSetting';
 
 const userStore = useUserStore()
+const store = sysStore()
 
 const route = useRoute()
 const {proxy} = getCurrentInstance()
@@ -77,6 +78,18 @@ watch(
         loadArticle() //更新页面
     },
     {immediate: true, deep: true})
+
+    //监听后台数据, 是否展示评论
+    const showComment = ref(false)
+    watch(
+    ()=> store.SysSetting,
+    (newValue, oldValue) => {
+        if (newValue) {
+        showComment.value = newValue.commentOpen
+
+        }
+    }
+    )
 </script>
 
 <template>
@@ -118,7 +131,11 @@ watch(
                 noDataMsg="没有发现文章, 赶紧来发布一个吧"
                 >
                     <template #default="{data}">
-                        <ArticleItem :data="data" @loadData="loadArticle"></ArticleItem>
+                        <ArticleItem
+                         :data="data"
+                          @loadData="loadArticle"
+                          :showComment="showComment"
+                          ></ArticleItem>
                     </template>
                 </DataList>
             </div>
