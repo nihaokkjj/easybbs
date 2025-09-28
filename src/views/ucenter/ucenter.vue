@@ -232,7 +232,7 @@ const resetUserInfoHandler = (data) => {
   .ucenter-body {
     .user-banner {
       padding: 10px;
-      .iconfont {
+      .icon-right {
         color: rgb(136, 136, 136);
       }
       .iconfont::before {

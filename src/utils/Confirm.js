@@ -8,7 +8,7 @@ const Confirm = (message, okfun) => {
   }).then(async() => {
       okfun()
   }).catch(() => {
-
+    return false
   })
 }
 

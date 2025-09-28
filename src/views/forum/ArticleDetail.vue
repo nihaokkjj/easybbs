@@ -334,7 +334,7 @@ const use = () => {
         </div>
         <!-- 附件 -->
          <div class="attachment-panel" 
-          v-if="attachment"
+          v-if="articleInfo.attachment"
          id="view-attachment">
         <div class="title item">附件</div>
          <div class="attachment-info item">
