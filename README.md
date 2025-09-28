@@ -10,5 +10,10 @@
 4. 打开Navicat Premium
   - 运行sql文件
 5. 返回文件夹, 双击运行start_web.bat, 不要关闭控制台
+
+### 如何免费使用Navicat
+  在github上面寻找自动删除使用信息的脚本, 无限重复使用试用期
+  具体脚本就放在easybbs(后端文件里面啦)
+  双击运行 `navicat-refresh.bat`即可
 ## 前端
 前端讲解【Vue3项目实战 开发 论坛 计算机毕业设计 个人简历项目 仿知乎 掘金 (前端)】https://www.bilibili.com/video/BV1A84y1L7uw?p=9&vd_source=26eb5025743189cb77f15d6e356b6da3
