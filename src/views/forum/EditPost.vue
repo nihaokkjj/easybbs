@@ -330,7 +330,7 @@ watch(
             ></el-input>
             <span class="tips">附件下载积分0,表示无需积分下载</span>
           </el-form-item>
-          <el-form-item label="" prop="">
+          <el-form-item>
             <el-button
             type="primary"
             :style="{width: '100%'}"
