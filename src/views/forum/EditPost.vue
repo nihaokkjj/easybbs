@@ -307,7 +307,7 @@ watch(
               clearable
               placeholder="提示信息"
               type="textarea"
-              :rows="5"
+              :rows="4"
               :maxlength="200"
               resize="none"
               show-word-limit

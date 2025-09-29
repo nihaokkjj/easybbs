@@ -59,8 +59,8 @@ const uploadImage = async(file) => {
 .cover-upload {
   .cover-upload-btn {
     background: #dddddd3d;
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
     display: flex;
     align-items: center;
     justify-content: center;

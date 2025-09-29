@@ -11,6 +11,10 @@ const props = defineProps({
     showEdit: {
         type: Boolean,
         default: false,
+    },
+    showHtml: {
+        type: Boolean,
+        default: false,
     }
 })
 
@@ -41,7 +45,8 @@ const currentUserInfo = userStore.loginUserInfo || {}
                 <router-link :to="`/post/${data.articleId}`" class="title-info">
                     <span v-if="data.topType === 1" class="top">置顶</span>
                     <span v-if="data.status === 0" class="tag tag-no-edit">待审核</span>
-                    <span class="title">{{ data.title }}</span>
+                    <span v-if="showHtml" v-html="data.title"></span>
+                    <span v-else="showHtml" class="title">{{ data.title }}</span>
                 </router-link>
                 <div class="summary">{{ data.summary }}</div>
                 <div class="article-info">
