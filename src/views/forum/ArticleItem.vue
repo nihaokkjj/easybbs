@@ -15,7 +15,7 @@ const props = defineProps({
     showHtml: {
         type: Boolean,
         default: false,
-    }
+    },
 })
 
 const currentUserInfo = userStore.loginUserInfo || {}
@@ -42,7 +42,10 @@ const currentUserInfo = userStore.loginUserInfo || {}
                     >{{ data.boardName }}</router-link>
                    </template> 
                 </div>
-                <router-link :to="`/post/${data.articleId}`" class="title-info">
+                <router-link
+                 :to="`/post/${data.articleId}`"
+                  class="title-info"
+                  >
                     <span v-if="data.topType === 1" class="top">置顶</span>
                     <span v-if="data.status === 0" class="tag tag-no-edit">待审核</span>
                     <span v-if="showHtml" v-html="data.title"></span>

@@ -4,9 +4,10 @@ import { onBeforeUnmount, getCurrentInstance, ref} from 'vue'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Highlight from '@tiptap/extension-highlight'
-import { BackgroundColor, TextStyle, FontFamily } from '@tiptap/extension-text-style'
+import { BackgroundColor, TextStyle, FontFamily, FontSize } from '@tiptap/extension-text-style'
 import Image from '@tiptap/extension-image';
 import { Aim } from '@element-plus/icons-vue'
+import { FloatingMenu } from '@tiptap/vue-3/menus'
 
 const props = defineProps({
   modelValue: {
@@ -23,13 +24,13 @@ const emit = defineEmits(['update:modelValue', 'htmlContent']);
 
 const userStore = useUserStore()
 
-
 const editor = useEditor({
   extensions: [
       StarterKit,
       TextStyle,
       BackgroundColor, 
       FontFamily,
+      FontSize,
       Highlight.configure({ multicolor: true }),
       Image.configure({
         inline: true,
@@ -174,6 +175,21 @@ const unsetFontFamily = () => {
   fontValue.value = ''
   editor.value.chain().focus().unsetFontFamily().run()
 }
+//字体大小选择
+const FontSizeValue = ref()
+const FontSizeOptions = [
+  {value: '32px', label: '32px'},
+  {value: '28px', label: '28px'},
+  {value: '24px', label: '24px'},
+  {value: '20px', label: '20px'},
+  {value: '16px', label: '16px'},
+  {value: '12px', label: '12px'},
+  {value: '10px', label: '10px'},
+]
+const changeFontSize = (size) => {
+  editor.value.chain().focus().setFontSize(size).run()
+}
+
 </script>
 
 <template>
@@ -195,7 +211,7 @@ const unsetFontFamily = () => {
           >
           <el-option
           v-for="item in colorOptions"
-          :ket="item.value"
+          :key="item.value"
           :label="item.label"
           :value="item.value"
           @click="changeColor(item.value)"
@@ -212,8 +228,8 @@ const unsetFontFamily = () => {
             @click="unsetBackgroundColor">
             无背景色
           </button>
-      <!-- </div> -->
-        <div class="button-group">
+      </div>
+      <div class="button-group">
           <el-select
             v-model="fontValue"
             placeholder="字体样式"
@@ -221,7 +237,7 @@ const unsetFontFamily = () => {
           >
           <el-option
           v-for="item in fontOptions"
-          :ket="item.value"
+          :key="item.value"
           :label="item.label"
           :value="item.value"
           @click="changeFont(item.value)"
@@ -237,8 +253,90 @@ const unsetFontFamily = () => {
         @click="unsetFontFamily"
         >默认样式</button>
       </div>
+      <div class="button-group">
+        <el-select
+          v-model="FontSizeValue"
+          placeholder="字体大小"
+          style="width: 100px"
+        >
+          <el-option
+            v-for="item in FontSizeOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+            @click="changeFontSize(item.value)"
+          >
+            <div class="flex items-center">
+              {{ item.label }}
+            </div>
+          </el-option>
+        </el-select>
       </div>
     </div>
+    <floating-menu :editor="editor" v-if="editor">
+      <div class="floating-menu">
+        <div class="button-group">
+          <el-select
+            v-model="colorValue"
+            placeholder="背景颜色"
+            style="width: 100px"
+          >
+          <el-option
+          v-for="item in colorOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+          @click="changeColor(item.value)"
+          >
+            <div class="flex items-center">
+            <el-tag :color="item.value" style="margin-right: 8px" size="small" />
+            <span :style="{ color: item.value }">{{ item.label }}</span>
+          </div>
+        </el-option>
+        <!-- <span>&nbsp;&nbsp;</span> -->
+        </el-select>
+        </div>
+        <div class="button-group">
+          <el-select
+            v-model="fontValue"
+            placeholder="字体样式"
+            style="width: 100px"
+          >
+          <el-option
+          v-for="item in fontOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+          @click="changeFont(item.value)"
+          >
+            <div class="flex items-center">
+            <el-tag :color="item.value" style="margin-right: 8px" size="small" />
+            <span :style="{ color: item.value }">{{ item.label }}</span>
+          </div>
+        </el-option>
+        </el-select>
+      </div>
+      <div class="button-group">
+        <el-select
+          v-model="FontSizeValue"
+          placeholder="字体大小"
+          style="width: 100px"
+        >
+          <el-option
+            v-for="item in FontSizeOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+            @click="changeFontSize(item.value)"
+          >
+            <div class="flex items-center">
+              {{ item.label }}
+            </div>
+          </el-option>
+        </el-select>
+      </div>
+      </div>
+    </floating-menu>
     <editor-content :editor="editor" />
   </div>
 
@@ -259,7 +357,7 @@ const unsetFontFamily = () => {
 }
 
 .control-group {
-  /* Style for the toolbar group */
+  display: flex;
   background: #fff;
   border: 1px solid #ccc;
   padding: 2px;
@@ -274,7 +372,7 @@ const unsetFontFamily = () => {
 
 
 .button-group {
-  /* Style for the buttons within the toolbar */
+  margin-right: 10px;
   display: flex;
   flex-wrap: wrap;
   gap: 5px; /* Adds space between buttons */
@@ -362,4 +460,29 @@ input[type="color"]::-moz-color-swatch {
   border-radius: 4px;
 }
 
+.floating-menu {
+  display: flex;
+  background-color: var(--gray-3);
+  padding: 0.1rem;
+  border-radius: 0.5rem;
+
+  button {
+    background-color: unset;
+    padding: 0.275rem 0.425rem;
+    border-radius: 0.3rem;
+
+    &:hover {
+      background-color: var(--gray-3);
+    }
+
+    &.is-active {
+      background-color: var(--white);
+      color: var(--purple);
+
+      &:hover {
+        color: var(--purple-contrast);
+      }
+    }
+  }
+}
 </style>

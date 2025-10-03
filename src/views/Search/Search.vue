@@ -69,8 +69,6 @@ const search = async () => {
     startSearchHandler()
 }
 
-
-
 </script>
 
 <template>

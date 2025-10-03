@@ -16,7 +16,7 @@ const props = defineProps({
   },
   articleUserId: {
     type: String,
-  }
+  },
 })
 const api = {
   loadComment: "/comment/loadComment",
@@ -78,11 +78,6 @@ const postCommentFinish = (resultData) => {
   emit('updateCommentCount', totalCount)
 }
 
-//隐藏所有回复框
-const hiddenAllReplyHandler = () => {
-  
-}
-
 
 </script>
 
@@ -130,7 +125,6 @@ const hiddenAllReplyHandler = () => {
           :commentData="data"
           :articleUserId="articleUserId"
           :currentUserId="currentUserInfo.userId"
-          @hiddenAllReply="hiddenAllReplyHandler"
           @reloadData="loadComment"
           >
         </CommentListItem>

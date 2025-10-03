@@ -47,6 +47,7 @@ const loadArticle = async () => {
     if(!result){
       return;
     }
+    // console.log('arti', result.data)
     articleListInfo.value = result.data
     loading.value = false //加载完成
 }
@@ -80,16 +81,15 @@ watch(
     {immediate: true, deep: true})
 
     //监听后台数据, 是否展示评论
-    const showComment = ref(false)
-    watch(
-    ()=> store.SysSetting,
-    (newValue, oldValue) => {
-        if (newValue) {
-        showComment.value = newValue.commentOpen
-
-        }
+const showComment = ref(false)
+watch(
+()=> store.SysSetting,
+(newValue, oldValue) => {
+    if (newValue) {
+    showComment.value = newValue.commentOpen
     }
-    )
+}
+)
 </script>
 
 <template>
@@ -134,7 +134,6 @@ watch(
                         <ArticleItem
                          :data="data"
                           @loadData="loadArticle"
-                          :showComment="showComment"
                           ></ArticleItem>
                     </template>
                 </DataList>

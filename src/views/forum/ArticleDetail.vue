@@ -43,6 +43,8 @@ const getArticleDetail = async (articleId) => {
     return
   }
   articleInfo.value = result.data.forumArticle
+  // console.log('article', articleInfo.value)
+  // console.log('resu', result.data)
   attachment.value = result.data.attachment || {}
   haveLike.value = result.haveLike
 
@@ -273,16 +275,16 @@ onUnmounted(() => {
   window.removeEventListener("scroll", listenerScroll, false)
 })
 
-//监听后台数据, 是否展示评论
-// const showComment = ref(true)
-// watch(
-//   ()=> store.SysSetting,
-//   (newValue, oldValue) => {
-//     if (newValue) {
-//       showComment.value = newValue.commentOpen
-//     }
-//   }
-// )
+// 监听后台数据, 是否展示评论
+const showComment = ref(true)
+watch(
+  ()=> store.SysSetting,
+  (newValue, oldValue) => {
+    if (newValue) {
+      showComment.value = newValue.commentOpen
+    }
+  }
+)
 </script>
 
 <template>
@@ -342,7 +344,7 @@ onUnmounted(() => {
         </div>
         <!-- 附件 -->
          <div class="attachment-panel" 
-          v-if="articleInfo.attachment"
+          v-if="articleInfo.attachmentType"
          id="view-attachment">
         <div class="title item">附件</div>
          <div class="attachment-info item">
@@ -370,10 +372,11 @@ onUnmounted(() => {
             id="view-comment"
             >
             <CommentList 
-            v-if="articleInfo.articleId"
+            v-if="showComment"
             :articleId="articleInfo.articleId"
             :articleUserId="articleInfo.userId"
             @updateCommentCount="updateCommentCount"
+            :showComment="showComment"
             ></CommentList>
            </div>
       </div>
