@@ -43,12 +43,16 @@ jobs:
           node-version: 22 # 您的项目使用的版本
           cache: 'pnpm'   # 启用 pnpm 缓存
       
-      # ✅ Step 3: 强制安装 pnpm 并验证
-      # 使用 npm 全局安装 pnpm，确保它一定在 PATH 中
-      - name: Install pnpm (via npm global install)
-        run: |
-          npm install -g pnpm@8 # 安装 pnpm v8
-          pnpm --version        # 验证 pnpm 是否安装成功
+      # ✅ Step 3: 使用官方 Action 安装 pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+        
+      # 💡 Step 3.5: 强制验证 pnpm 是否在 PATH 中
+      # 这一步是为了确保 pnpm/action-setup 成功执行了 PATH 注入
+      - name: Verify pnpm Installation
+        run: pnpm --version
         
       # Step 4: 安装依赖
       - name: Install Dependencies
