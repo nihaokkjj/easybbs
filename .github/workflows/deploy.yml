@@ -40,7 +40,7 @@ jobs:
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-version: 22 # 您的项目使用的版本
+          node-version: 20 # 您的项目使用的版本
           cache: 'pnpm'   # 启用 pnpm 缓存
       
       # ✅ Step 3: 使用官方 Action 安装 pnpm
