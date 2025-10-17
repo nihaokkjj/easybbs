@@ -130,4 +130,4 @@ jobs:
         run: pnpm publish --no-git-checks
         env:
           # 注入 NPM 认证 Token
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.BBS_TOKEN }}
