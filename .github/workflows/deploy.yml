@@ -40,18 +40,18 @@ jobs:
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-version: 22 # 根据项目需求调整版本
+          node-version: 22 # 您的项目使用的版本
           cache: 'pnpm'   # 启用 pnpm 缓存
       
-      # Step 3: 安装 pnpm (移除 run_install: false 参数，确保 Action 默认安装 pnpm 并配置 PATH)
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 8
+      # ✅ Step 3: 强制安装 pnpm 并验证
+      # 使用 npm 全局安装 pnpm，确保它一定在 PATH 中
+      - name: Install pnpm (via npm global install)
+        run: |
+          npm install -g pnpm@8 # 安装 pnpm v8
+          pnpm --version        # 验证 pnpm 是否安装成功
         
       # Step 4: 安装依赖
       - name: Install Dependencies
-        # 现在 pnpm 应该已经被添加到 PATH 环境变量中
         run: pnpm install --frozen-lockfile --no-prefer-workspace
       
       # Step 5: 构建项目
