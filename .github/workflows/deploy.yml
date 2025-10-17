@@ -43,12 +43,11 @@ jobs:
           node-version: 22 # 根据项目需求调整版本
           cache: 'pnpm'   # 启用 pnpm 缓存
       
-      # Step 3: 安装 pnpm (修正后的缩进)
+      # Step 3: 安装 pnpm (移除 run_install: false 参数，确保 Action 默认安装 pnpm 并配置 PATH)
       - name: Install pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 8
-          run_install: false # ✅ 确保这里是正确的两格空格缩进
         
       # Step 4: 安装依赖
       - name: Install Dependencies
