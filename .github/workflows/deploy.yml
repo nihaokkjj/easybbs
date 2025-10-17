@@ -40,7 +40,7 @@ jobs:
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # 根据项目需求调整版本
+          node-version: 22 # 根据项目需求调整版本
           cache: 'pnpm'   # 启用 pnpm 缓存
       
       # Step 3: 安装 pnpm
@@ -48,7 +48,8 @@ jobs:
         uses: pnpm/action-setup@v3
         with:
           version: 8
-
+        run_install: false
+        
       # Step 4: 安装依赖
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile --no-prefer-workspace
