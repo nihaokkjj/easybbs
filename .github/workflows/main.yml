@@ -1,0 +1,133 @@
+# 工作流名称，显示在 GitHub Actions 界面
+name: CI/CD Build & Publish
+
+# ----------------------------------------------------
+# 1. 触发条件 (Triggers)
+# ----------------------------------------------------
+on:
+  # 在代码推送到 main 分支时触发
+  push:
+    branches:
+      - main
+    # 排除标签（通常标签用于发布，发布由单独的 release job 处理）
+    tags-ignore:
+      - '**' 
+  
+  # 在创建、更新或重新打开 Pull Request 时触发
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+  
+  # 允许手动触发工作流（用于紧急部署或测试）
+  workflow_dispatch:
+
+# ----------------------------------------------------
+# 2. 作业定义 (Jobs)
+# ----------------------------------------------------
+jobs:
+  # 作业 1: CI - 构建、测试和质量检查
+  ci_build_test:
+    name: Build and Test
+    # 运行环境
+    runs-on: ubuntu-latest
+    
+    # 定义 Node.js 版本矩阵，在多个版本上并行运行
+    strategy:
+      matrix:
+        node-version: [22.x]
+        
+    steps:
+      # Step 1: 检出代码
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      # Step 2: 设置 Node.js 环境
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          # 启用 pnpm 包管理器的缓存
+          cache: 'pnpm'
+      
+      # Step 3: 安装 pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false # 确保不自动运行 pnpm install
+          
+      # Step 4: 安装依赖 (利用缓存)
+      - name: Get pnpm store path
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+            
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile --no-prefer-workspace
+      
+      # Step 5: 运行代码检查 (Lint)
+      - name: Run Linter
+        run: pnpm run lint
+      
+      # Step 6: 运行测试
+      - name: Run Tests
+        run: pnpm run test
+
+      # Step 7: 构建项目 (生成最终产物)
+      - name: Build Project
+        run: pnpm run build
+      
+      # Step 8: 上传构建产物 (Artifacts)，供后续 job 使用
+      - name: Upload Artifacts (dist)
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-dist
+          path: dist/
+          retention-days: 1
+          
+  # 作业 2: CD - 发布到 NPM (仅在 main 分支 push 且 CI 成功后触发)
+  cd_publish_npm:
+    name: Publish to NPM
+    # 依赖 ci_build_test 成功
+    needs: [ci_build_test]
+    runs-on: ubuntu-latest
+    
+    # 仅在 main 分支发生 push 时触发，且不是 PR 
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      # Step 1: 检出代码 (需要再次拉取，因为是新的 Job)
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: 设置 Node.js 和 npm 认证
+      - name: Setup Node.js for publishing
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org' # NPM 官方注册表
+          # 从 GitHub Secrets 中获取 NPM Token
+          scope: '@yourscope' # 替换为您的包 Scope（如果需要）
+      
+      # Step 3: 下载 CI 阶段构建的产物
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: project-dist
+          path: dist/
+          
+      # Step 4: 发布到 NPM
+      # 使用 --access public (如果是非 Scope 包) 或 --access restricted (如果是 Scope 包)
+      - name: Publish to NPM
+        run: pnpm publish --no-git-checks
+        env:
+          # 注入 NPM 认证 Token
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
