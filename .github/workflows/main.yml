@@ -1,133 +1,84 @@
-# 工作流名称，显示在 GitHub Actions 界面
-name: CI/CD Build & Publish
+# 工作流名称，显示在 Actions 标签页
+name: Deploy Static Site to GitHub Pages
 
 # ----------------------------------------------------
 # 1. 触发条件 (Triggers)
 # ----------------------------------------------------
 on:
-  # 在代码推送到 main 分支时触发
+  # 只有推送到 main 分支时才触发部署流程
   push:
     branches:
       - main
-    # 排除标签（通常标签用于发布，发布由单独的 release job 处理）
-    tags-ignore:
-      - '**' 
   
-  # 在创建、更新或重新打开 Pull Request 时触发
-  pull_request:
-    types: [opened, synchronize, reopened]
-    branches:
-      - main
-  
-  # 允许手动触发工作流（用于紧急部署或测试）
+  # 允许手动在 GitHub 界面上触发
   workflow_dispatch:
 
 # ----------------------------------------------------
-# 2. 作业定义 (Jobs)
+# 2. 权限设置
+# 必须配置，否则无法进行 Pages 部署
+# ----------------------------------------------------
+permissions:
+  contents: read     # 允许读取仓库内容
+  pages: write       # 允许写入 Pages 部署
+  id-token: write    # 允许 Pages 部署进行身份验证
+
+# ----------------------------------------------------
+# 3. 作业定义 (Jobs)
 # ----------------------------------------------------
 jobs:
-  # 作业 1: CI - 构建、测试和质量检查
-  ci_build_test:
-    name: Build and Test
-    # 运行环境
+  # Job 1: 构建 (Build) - 负责环境设置、依赖安装和项目打包
+  build:
+    name: Build Project
     runs-on: ubuntu-latest
     
-    # 定义 Node.js 版本矩阵，在多个版本上并行运行
-    strategy:
-      matrix:
-        node-version: [22.x]
-        
     steps:
       # Step 1: 检出代码
       - name: Checkout Code
         uses: actions/checkout@v4
-      
+
       # Step 2: 设置 Node.js 环境
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          # 启用 pnpm 包管理器的缓存
-          cache: 'pnpm'
+          node-version: 20 # 根据项目需求调整版本
+          cache: 'pnpm'   # 启用 pnpm 缓存
       
       # Step 3: 安装 pnpm
       - name: Install pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 8
-          run_install: false # 确保不自动运行 pnpm install
-          
-      # Step 4: 安装依赖 (利用缓存)
-      - name: Get pnpm store path
-        id: pnpm-cache
-        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v4
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-            
+      # Step 4: 安装依赖
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile --no-prefer-workspace
       
-      # Step 5: 运行代码检查 (Lint)
-      - name: Run Linter
-        run: pnpm run lint
-      
-      # Step 6: 运行测试
-      - name: Run Tests
-        run: pnpm run test
-
-      # Step 7: 构建项目 (生成最终产物)
+      # Step 5: 构建项目
       - name: Build Project
-        run: pnpm run build
+        # ⚠️ 请修改为您的实际构建命令，例如 pnpm run docs:build
+        run: pnpm run build 
       
-      # Step 8: 上传构建产物 (Artifacts)，供后续 job 使用
-      - name: Upload Artifacts (dist)
-        uses: actions/upload-artifact@v4
+      # Step 6: 配置 GitHub Pages 环境
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # Step 7: 上传构建产物
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: project-dist
-          path: dist/
-          retention-days: 1
-          
-  # 作业 2: CD - 发布到 NPM (仅在 main 分支 push 且 CI 成功后触发)
-  cd_publish_npm:
-    name: Publish to NPM
-    # 依赖 ci_build_test 成功
-    needs: [ci_build_test]
+          # ⚠️ 请确保路径指向您的静态文件构建输出目录
+          path: './dist' 
+
+  # Job 2: 部署 (Deploy) - 负责将构建产物部署到 GitHub Pages
+  deploy:
+    name: Deploy to Pages
+    # 依赖于 build Job 成功
+    needs: build 
     runs-on: ubuntu-latest
     
-    # 仅在 main 分支发生 push 时触发，且不是 PR 
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
-    steps:
-      # Step 1: 检出代码 (需要再次拉取，因为是新的 Job)
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      # Step 2: 设置 Node.js 和 npm 认证
-      - name: Setup Node.js for publishing
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: 'https://registry.npmjs.org' # NPM 官方注册表
-          # 从 GitHub Secrets 中获取 NPM Token
-          scope: '@yourscope' # 替换为您的包 Scope（如果需要）
       
-      # Step 3: 下载 CI 阶段构建的产物
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: project-dist
-          path: dist/
-          
-      # Step 4: 发布到 NPM
-      # 使用 --access public (如果是非 Scope 包) 或 --access restricted (如果是 Scope 包)
-      - name: Publish to NPM
-        run: pnpm publish --no-git-checks
-        env:
-          # 注入 NPM 认证 Token
-          NODE_AUTH_TOKEN: ${{ secrets.BBS_TOKEN }}
+    steps:
+      # Step 1: 部署
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 # 官方部署 Action
