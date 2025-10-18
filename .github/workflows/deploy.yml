@@ -39,52 +39,26 @@ jobs:
         with:
           node-version: '20' # 您的项目使用的版本
           cache: 'pnpm'   # 启用 pnpm 缓存
-      
-      # ✅ Step 3: 使用官方 Action 安装 pnpm
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: '8'
-        
-      # 💡 Step 3.5: 强制验证 pnpm 是否在 PATH 中
-      # 这一步是为了确保 pnpm/action-setup 成功执行了 PATH 注入
-      - name: Verify pnpm Installation
-        run: pnpm --version
-        
+          
       # Step 4: 安装依赖
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile --no-prefer-workspace
+        run: pnpm install 
       
       # Step 5: 构建项目
       - name: Build Project
         # 实际运行：vue-tsc -b && vite build
         run: pnpm run build 
       
-      # Step 6: 配置 GitHub Pages 环境
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      - name: Set SSH agent
+        uses: webfactory/ssh-agent@v0
+        with:
+          ssh-private-key: ${{ secrets.BBS_TOKEN }}
 
       # Step 7: 上传构建产物
-      - name: Upload Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # 您的 Vite/Vue 项目默认输出目录通常是 dist
-          path: './dist' 
-
-  # Job 2: 部署 (Deploy) - 负责将构建产物部署到 GitHub Pages
-  deploy:
-    name: Deploy to Pages
-    # 依赖于 build Job 成功
-    needs: build 
-    runs-on: ubuntu-latest
-    
-    # 部署环境和 URL 定义
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-      
-    steps:
-      # Step 1: 部署
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4 # 官方部署 Action
+      - name: Add SHH known hosts
+        run: |
+          ssh-keyscan -H 8.137.114.19 >>~/.ssh/known_hosts
+        
+      - name: Deploy vite-project Alibaba Cloud
+        run: |
+          scp -r ./dist/*root@8.137.114.19:/www/wwwroot/www.resgoing.com/case/vite-project
