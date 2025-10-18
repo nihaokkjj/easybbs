@@ -50,7 +50,7 @@ jobs:
 
 # Step 7: 创建 CNAME 文件以配置自定义域名 (新增步骤)
       - name: Create CNAME file for custom domain
-        run: echo "kkksj.cn/easybbs" > ./dist/CNAME
+        run: echo "kkksj" > ./dist/CNAME
         # 🚨 重点：请将 "your-subdomain.example.com" 替换为您实际的二级域名，例如 "app.mydomain.com"
 
 
