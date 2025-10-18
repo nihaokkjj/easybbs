@@ -23,13 +23,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step 3: 安装 pnpm
+      # Step 2: 安装 pnpm
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      # Step 2: 设置 Node.js 环境
+      # Step 3: 设置 Node.js 环境
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
@@ -48,9 +48,9 @@ jobs:
       - name: Build Project
         run: pnpm run build # 确保 package.json 中 build 脚本正确生成 dist
 
-# Step 7: 创建 CNAME 文件以配置自定义域名 (新增步骤)
+      # Step 7: 创建 CNAME 文件以配置自定义域名 (新增步骤)
       - name: Create CNAME file for custom domain
-        run: echo "kkksj" > ./dist/CNAME
+        run: echo "easybbs.kkksj.cn" > ./dist/CNAME
         # 🚨 重点：请将 "your-subdomain.example.com" 替换为您实际的二级域名，例如 "app.mydomain.com"
 
 
