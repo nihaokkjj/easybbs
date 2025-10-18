@@ -1,12 +1,17 @@
 name: Deploy to GitHub Pages
 
+permissions:
+  contents: read
+  pages: write # 允许写入 Pages 内容
+  id-token: write
+
 on:
   push:
-    branches: [ main ]  # 监听 main 分支的推送，触发部署
+    branches: [main] # 监听 main 分支的推送，触发部署
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest  # 使用 Ubuntu 环境
+    runs-on: ubuntu-latest # 使用 Ubuntu 环境
 
     steps:
       # Step 1: 检出代码
@@ -36,20 +41,20 @@ jobs:
 
       # Step 6: 构建项目（生成静态文件到 dist 目录）
       - name: Build Project
-        run: pnpm run build  # 确保 package.json 中 build 脚本正确生成 dist
+        run: pnpm run build # 确保 package.json 中 build 脚本正确生成 dist
 
       # Step 7: 配置 GitHub Pages 环境
       - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5  # 官方配置 Pages 的 Action
+        uses: actions/configure-pages@v5 # 官方配置 Pages 的 Action
 
       # Step 8: 上传构建产物（dist 目录）作为部署 artifact
       - name: Upload Build Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'  # 指向项目构建后的输出目录（通常是 dist）
+          path: './dist' # 指向项目构建后的输出目录（通常是 dist）
 
       # Step 9: 部署到 GitHub Pages
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4  # 官方部署 Pages 的 Action
+        uses: actions/deploy-pages@v4 # 官方部署 Pages 的 Action
         with:
-          artifact_name: github-pages  # 与上一步上传的 artifact 名称对应
+          artifact_name: github-pages # 与上一步上传的 artifact 名称对应
