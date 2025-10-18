@@ -1,5 +1,5 @@
 
-  const sizeToStr =  (size) => {
+  const sizeToStr =  (size: number) => {
     var data = ''
     if (size < 0.1 * 1024) {
       // 如果小于0.1KB转化成B
