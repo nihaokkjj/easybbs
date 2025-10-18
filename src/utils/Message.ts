@@ -1,39 +1,43 @@
-import { ElMessage } from 'element-plus';
+import { ElMessage } from 'element-plus'
+// import {de} from 'element-plus/es/locale'
 
-/**
- * 通用消息提示函数
- * @param msg 提示内容
- * @param callback 关闭后的回调函数（可选）
- * @param type 消息类型（默认 'info'，支持 'error' | 'success' | 'warning' | 'info' | 'loading'）
- */
-const showMessage = (
-  msg: string,
-  callback?: () => void,
-  type: 'error' | 'success' | 'warning' | 'info' | 'loading' = 'info'
-) => {
-  ElMessage({
-    type: type,
-    message: msg,
-    duration: 2000,
-    onClose: () => {
-      if (callback) {
-        callback();
-      }
-    },
-  });
-};
+type MessageCallback = (() => void) | undefined
 
-// 封装不同类型的消息方法
-const message = {
-  error: (msg: string, callback?: () => void) => {
-    showMessage(msg, callback, 'error');
-  },
-  success: (msg: string, callback?: () => void) => {
-    showMessage(msg, callback, 'success');
-  },
-  warning: (msg: string, callback?: () => void) => {
-    showMessage(msg, callback, 'warning');
-  },
-};
+interface ShowMessageOptions {
+	msg: string
+	callback?: MessageCallback
+	type: 'error' | 'success' | 'warning'
+}
 
-export default message;
+const showMessage = ({ msg, callback, type }: ShowMessageOptions) => {
+	ElMessage({
+		type: type,
+		message: msg,
+		duration: 2000,
+		onClose: () => {
+			if (callback) {
+				callback()
+			}
+		},
+	})
+}
+
+interface MessageAPI {
+	error: (msg: string, callback?: MessageCallback) => void
+	success: (msg: string, callback?: MessageCallback) => void
+	warning: (msg: string, callback?: MessageCallback) => void
+}
+
+const message: MessageAPI = {
+	error: (msg: string, callback?: MessageCallback) => {
+		showMessage({ msg, callback, type: 'error' })
+	},
+	success: (msg: string, callback?: MessageCallback) => {
+		showMessage({ msg, callback, type: 'success' })
+	},
+	warning: (msg: string, callback?: MessageCallback) => {
+		showMessage({ msg, callback, type: 'warning' })
+	},
+}
+
+export default message
