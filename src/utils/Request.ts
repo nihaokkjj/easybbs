@@ -35,7 +35,7 @@ interface UserStore {
 }
 
 // 后端接口返回数据的通用结构
-interface ApiResponse {
+export interface ApiResponse {
 	code: number // 状态码（200 成功，901 超时等）
 	info?: string // 错误信息
 	[key: string]: any // 其他可能的返回字段

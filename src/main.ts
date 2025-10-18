@@ -16,7 +16,7 @@ import 'element-plus/dist/index.css'
 //图标 图标在附件中
 import './assets/icon/iconfont.css'
 import Dialog from './components/Dialog.vue'
-import Verify from './utils/Verify.js'
+import Verify from './utils/Verify.ts'
 import Message from './utils/Message.ts'
 import Request from './utils/Request.ts'
 import Avatar from './components/Avatar.vue'
