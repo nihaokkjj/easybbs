@@ -8,7 +8,7 @@ import axios, {
 } from 'axios'
 import { ElLoading, type LoadingInstance } from 'element-plus'
 import Message from './Message'
-import { useUserStore } from '../store/index.ts'
+import { useUserStore } from '../store/index'
 
 // -------------------------------------------------------------------
 // 💡 模块增强替代方案：直接扩展 Axios 的原生类型
