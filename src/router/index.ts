@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Layout from '..@/views/Layout/index.vue'
+import Layout from '@/views/Layout/index.vue'
 import ArticleList from '@/views/forum/ArticleList.vue'
 import Search from '@/views/Search/Search.vue'
 import Ucenter from '@/views/ucenter/Ucenter.vue'
