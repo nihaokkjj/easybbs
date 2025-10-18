@@ -13,6 +13,11 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest # 使用 Ubuntu 环境
 
+# 💥 增加环境配置，这是 Pages 部署的最佳实践
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       # Step 1: 检出代码
       - name: Checkout Code
@@ -42,6 +47,12 @@ jobs:
       # Step 6: 构建项目（生成静态文件到 dist 目录）
       - name: Build Project
         run: pnpm run build # 确保 package.json 中 build 脚本正确生成 dist
+
+# Step 7: 创建 CNAME 文件以配置自定义域名 (新增步骤)
+      - name: Create CNAME file for custom domain
+        run: echo "kkksj.cn/easybbs" > ./dist/CNAME
+        # 🚨 重点：请将 "your-subdomain.example.com" 替换为您实际的二级域名，例如 "app.mydomain.com"
+
 
       # Step 7: 配置 GitHub Pages 环境
       - name: Configure GitHub Pages
