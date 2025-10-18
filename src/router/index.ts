@@ -72,7 +72,7 @@ const router = createRouter({
 )
 
 //进去 '/user'中心后取消板块的选中
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const userStore = useUserStore()
   if (to.path.indexOf("/user") != -1) {
     userStore.activePboardId = -1
