@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useUserStore } from '@/store/index' // 使用别名，更健壮
+import { useUserStore } from '../store/index' // 使用别名，更健壮
 
 // 移除所有静态导入，改用动态导入（懒加载），优化性能并提高路径解析可靠性。
 // import Layout from '@/views/Layout/index.vue'
