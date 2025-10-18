@@ -1,5 +1,5 @@
 # 工作流名称，显示在 Actions 标签页
-name: Deploy Static Site to GitHub Pages
+name: Go Build and Release
 
 # ----------------------------------------------------
 # 1. 触发条件 (Triggers)
@@ -9,9 +9,6 @@ on:
   push:
     branches:
       - main
-  
-  # 允许手动在 GitHub 界面上触发
-  workflow_dispatch:
 
 # ----------------------------------------------------
 # 2. 权限设置
@@ -40,14 +37,14 @@ jobs:
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # 您的项目使用的版本
+          node-version: '20' # 您的项目使用的版本
           cache: 'pnpm'   # 启用 pnpm 缓存
       
       # ✅ Step 3: 使用官方 Action 安装 pnpm
       - name: Install pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: '8'
         
       # 💡 Step 3.5: 强制验证 pnpm 是否在 PATH 中
       # 这一步是为了确保 pnpm/action-setup 成功执行了 PATH 注入
