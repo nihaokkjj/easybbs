@@ -12,8 +12,6 @@ import { useUserStore } from '@/store'
 
 // -------------------------------------------------------------------
 // 💡 模块增强替代方案：直接扩展 Axios 的原生类型
-// 告诉 TypeScript，AxiosRequestConfig 和 InternalAxiosRequestConfig 
-// 现在包含了我们的自定义字段，彻底消除类型不兼容错误。
 // -------------------------------------------------------------------
 declare module 'axios' {
 	export interface AxiosRequestConfig {
@@ -71,10 +69,8 @@ const instance: AxiosInstance = axios.create({
 let loading: LoadingInstance | null = null // 加载动画实例（指定类型）
 
 // 请求拦截器
-// 参数类型现在可以直接使用 InternalAxiosRequestConfig，因为它已被增强
 instance.interceptors.request.use(
 	(config: InternalAxiosRequestConfig) => {
-		// ⚠️ 注意：这里不再需要类型断言，可以直接访问自定义属性
 		if (config.showLoading) {
 			loading = ElLoading.service({
 				lock: true,
@@ -85,7 +81,6 @@ instance.interceptors.request.use(
 		return config
 	},
 	(error: any) => {
-		// 同样可以直接访问 error.config 上的自定义属性
 		if (error.config?.showLoading && loading) {
 			loading.close()
 		}
@@ -99,8 +94,8 @@ instance.interceptors.request.use(
 
 // 响应拦截器
 instance.interceptors.response.use(
-	(response:  AxiosResponse<ApiResponse>) => {
-		// response.config 类型现在已经被增强
+	(response: AxiosResponse<ApiResponse>) => {
+		
 		const config = response.config 
 		const { showLoading, errorCallback, showError = true } = config
 
@@ -109,26 +104,29 @@ instance.interceptors.response.use(
 			loading.close()
 		}
 
-		const userStore: UserStore = useUserStore() // 明确 store 类型
+		const userStore: UserStore = useUserStore() 
 		const responseData: ApiResponse = response.data
 
 		if (responseData.code === 200) {
-			// 成功：返回后端数据
-			return response
+			// 成功时，返回原始的 response 对象
+			return response 
 		} else if (responseData.code === 901) {
 			// 登录超时：更新用户状态
 			userStore.changeLoginState(true)
 			userStore.updateLoginUserInfo(null)
-			return Promise.reject<RequestError>({ showError: false, msg: '登录超时' }) as Promise<AxiosResponse<ApiResponse>>
+			
+			// 修复点：使用 'as unknown as' 双重断言，解决严格类型检查的警告/错误
+			return Promise.reject<RequestError>({ showError: false, msg: '登录超时' }) as unknown as AxiosResponse<ApiResponse>
 		} else {
 			// 其他错误：执行自定义回调或默认处理
 			if (errorCallback) {
 				errorCallback(responseData)
 			}
+			// 修复点：使用 'as unknown as' 双重断言
 			return Promise.reject<RequestError>({
 				showError: showError,
 				msg: responseData.info || '请求失败',
-			})
+			}) as unknown as AxiosResponse<ApiResponse>
 		}
 	},
 	(error: any) => {
@@ -136,6 +134,7 @@ instance.interceptors.response.use(
 		if (config?.showLoading && loading) {
 			loading.close()
 		}
+		// onRejected 处理器
 		return Promise.reject<RequestError>({ showError: true, msg: '网络异常' })
 	}
 )
@@ -143,10 +142,10 @@ instance.interceptors.response.use(
 // 封装请求函数
 const request = (
 	config: RequestConfig
-): Promise<ApiResponse | null> => {
+): Promise<ApiResponse | null> => { 
 	const {
 		url,
-		params = {}, // 默认空对象（避免 undefined）
+		params = {}, 
 		dataType,
 		errorCallback,
 		showLoading = true,
@@ -160,7 +159,6 @@ const request = (
 	// 转换 params 为 FormData（form 格式）
 	if (dataType !== 'json') {
 		for (const key in params) {
-			// 处理 undefined 值（转为空字符串）
 			const value = params[key] === undefined ? '' : params[key]
 			requestData.append(key, value)
 		}
@@ -183,9 +181,9 @@ const request = (
 			errorCallback,
 			showError,
 		} as AxiosRequestConfig) 
-		// 修复点 4: 在 request 函数中链式调用 then，解构出 data，并返回最终的数据类型 ApiResponse
+		// 在 request 函数中链式调用 then，解构出 data，并返回最终的数据类型 ApiResponse
 		.then(response => {
-			// 由于拦截器在 code === 200 时返回了完整的 response，这里可以安全地返回 data
+			// 拦截器在 code === 200 时返回了完整的 response，这里可以安全地返回 data
 			return response.data;
 		})
 		.catch((error: RequestError) => {
@@ -196,6 +194,5 @@ const request = (
 			return null
 		})
 }
-
 
 export default request
