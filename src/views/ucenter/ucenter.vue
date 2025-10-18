@@ -6,7 +6,7 @@ import { getCurrentInstance,
         watch,
       } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useUserStore } from '@/store';
+import { useUserStore } from '@/store/index';
 import ArticleItem from '../forum/ArticleItem.vue';
 import UcenterEditUserinfo from './UcenterEditUserinfo.vue';
 import UserIntegralRecord from './UserIntegralRecord.vue';
