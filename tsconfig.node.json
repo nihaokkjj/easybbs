@@ -19,7 +19,14 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    "allowJs": true,
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@[Image of JSON file icon]*/": ["src/*"]
+    },
   },
   "include": ["src", "*.ts", "*,js"]
 }

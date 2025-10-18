@@ -1,6 +1,4 @@
 import request from './Request'
-import {type ApiResponse} from './Request'
-
 
 //封装接口式的写法
 export const loadArticleList = (params: any) => {
