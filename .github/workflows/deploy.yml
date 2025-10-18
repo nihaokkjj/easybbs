@@ -12,7 +12,7 @@ jobs:
       # Step 1: 检出代码
       - name: Checkout Code
         uses: actions/checkout@v4
-        
+
       # Step 3: 安装 pnpm
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -32,7 +32,7 @@ jobs:
 
       # Step 5: 安装依赖
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile --no-prefer-workspace
+        run: pnpm install --frozen-lockfile
 
       # Step 6: 构建项目（生成静态文件到 dist 目录）
       - name: Build Project
