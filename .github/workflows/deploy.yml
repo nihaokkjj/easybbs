@@ -12,6 +12,12 @@ jobs:
       # Step 1: 检出代码
       - name: Checkout Code
         uses: actions/checkout@v4
+        
+      # Step 3: 安装 pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
 
       # Step 2: 设置 Node.js 环境
       - name: Setup Node.js Environment
@@ -19,12 +25,6 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
-
-      # Step 3: 安装 pnpm
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 8
 
       # Step 4: 验证 pnpm 安装
       - name: Verify pnpm Installation
