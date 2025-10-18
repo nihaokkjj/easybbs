@@ -5,12 +5,12 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
-    "strict": true,
-    "baseUrl": ".",
+    // 其他已有配置（如 target、module 等）
+    "baseUrl": ".", // 基础路径为项目根目录
     "paths": {
-      "@/*": ["src/*"]
-    },
-    "allowJs": true,
-    "checkJs": false
-  }
+      "@/*": ["src/*"] // 别名 @/* 对应 src/* 下的文件
+    }
+  },
+  "include": ["src/**/*"], // 指定需要 TypeScript 检查的文件范围
+  "exclude": ["node_modules"]
 }
