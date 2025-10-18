@@ -1,33 +1,13 @@
-# 工作流名称，显示在 Actions 标签页
-name: Go Build and Release
+name: Deploy to GitHub Pages
 
-# ----------------------------------------------------
-# 1. 触发条件 (Triggers)
-# ----------------------------------------------------
 on:
-  # 只有推送到 main 分支时才触发部署流程
   push:
-    branches:
-      - main
+    branches: [ main ]  # 监听 main 分支的推送，触发部署
 
-# ----------------------------------------------------
-# 2. 权限设置
-# 必须配置，否则无法进行 Pages 部署
-# ----------------------------------------------------
-permissions:
-  contents: read     # 允许读取仓库内容
-  pages: write       # 允许写入 Pages 部署
-  id-token: write    # 允许 Pages 部署进行身份验证
-
-# ----------------------------------------------------
-# 3. 作业定义 (Jobs)
-# ----------------------------------------------------
 jobs:
-  # Job 1: 构建 (Build) - 负责环境设置、依赖安装和项目打包
-  build:
-    name: Build Project
-    runs-on: ubuntu-latest
-    
+  build-and-deploy:
+    runs-on: ubuntu-latest  # 使用 Ubuntu 环境
+
     steps:
       # Step 1: 检出代码
       - name: Checkout Code
@@ -37,28 +17,39 @@ jobs:
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # 您的项目使用的版本
-          cache: 'pnpm'   # 启用 pnpm 缓存
-          
-      # Step 4: 安装依赖
-      - name: Install Dependencies
-        run: pnpm install 
-      
-      # Step 5: 构建项目
-      - name: Build Project
-        # 实际运行：vue-tsc -b && vite build
-        run: pnpm run build 
-      
-      - name: Set SSH agent
-        uses: webfactory/ssh-agent@v0
-        with:
-          ssh-private-key: ${{ secrets.BBS_TOKEN }}
+          node-version: 20
+          cache: 'pnpm'
 
-      # Step 7: 上传构建产物
-      - name: Add SHH known hosts
-        run: |
-          ssh-keyscan -H 8.137.114.19 >>~/.ssh/known_hosts
-        
-      - name: Deploy vite-project Alibaba Cloud
-        run: |
-          scp -r ./dist/*root@8.137.114.19:/www/wwwroot/www.resgoing.com/case/vite-project
+      # Step 3: 安装 pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      # Step 4: 验证 pnpm 安装
+      - name: Verify pnpm Installation
+        run: pnpm --version
+
+      # Step 5: 安装依赖
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile --no-prefer-workspace
+
+      # Step 6: 构建项目（生成静态文件到 dist 目录）
+      - name: Build Project
+        run: pnpm run build  # 确保 package.json 中 build 脚本正确生成 dist
+
+      # Step 7: 配置 GitHub Pages 环境
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5  # 官方配置 Pages 的 Action
+
+      # Step 8: 上传构建产物（dist 目录）作为部署 artifact
+      - name: Upload Build Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'  # 指向项目构建后的输出目录（通常是 dist）
+
+      # Step 9: 部署到 GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4  # 官方部署 Pages 的 Action
+        with:
+          artifact_name: github-pages  # 与上一步上传的 artifact 名称对应
