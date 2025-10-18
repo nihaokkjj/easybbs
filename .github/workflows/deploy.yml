@@ -15,7 +15,7 @@ jobs:
 
       # Step 3: 安装 pnpm
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: 9
 
