@@ -6,7 +6,7 @@ import Ucenter from '@/views/ucenter/Ucenter.vue'
 import ArticleDetail from '@/views/forum/ArticleDetail.vue'
 import EditPost from '@/views/forum/EditPost.vue'
 import MessageList from '@/views/ucenter/MessageList.vue'
-import { useUserStore } from '../store/index.ts'
+import { useUserStore } from '../store/index'
 
 
 const router = createRouter({
