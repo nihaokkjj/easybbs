@@ -1,10 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '../store/index' // 使用别名，更健壮
 
-// 移除所有静态导入，改用动态导入（懒加载），优化性能并提高路径解析可靠性。
-// import Layout from '@/views/Layout/index.vue'
-// import ArticleList from '@/views/forum/ArticleList.vue'
-// ... 其他导入
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -54,8 +50,7 @@ const router = createRouter({
         {
           path: '/user/:userId',
           name: '用户信息',
-          // 动态导入 Ucenter
-          component: () => import('@/views/ucenter/Ucenter.vue'),
+          component: () => import('@/views/ucenter/ucenter.vue'),
         },
         {
           path: '/user/message/:type',

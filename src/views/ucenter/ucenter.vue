@@ -11,7 +11,7 @@ import ArticleItem from '../forum/ArticleItem.vue';
 import UcenterEditUserinfo from './UcenterEditUserinfo.vue';
 import UserIntegralRecord from './UserIntegralRecord.vue';
 
-const {proxy} = getCurrentInstance()
+const { proxy } = getCurrentInstance()
 const userStore = useUserStore()
 
 const router = useRouter()
